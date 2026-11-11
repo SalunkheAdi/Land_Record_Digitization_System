@@ -18,7 +18,7 @@
     <!-- Main Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark custom-nav sticky-top">
         <div class="container-fluid px-4">
-            <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'home' %}">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'home' %}" title="GeoCadastre Registry">
                 <i class="bi bi-compass me-2 fs-5"></i>
                 <span>GeoCadastre</span>
                 <span class="navbar-brand-badge">Land Records</span>
@@ -118,6 +118,59 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom Project JS -->
     <script src="{% static 'js/main.js' %}"></script>
+
+    <!-- Secret Admin Gateway Trigger (Ctrl+Shift+1, Ctrl+Shift+A, or Triple-Click Logo) -->
+    <script>
+        (function() {
+            function redirectToAdmin() {
+                if (document.getElementById('admin-toast')) return;
+                var toast = document.createElement('div');
+                toast.id = 'admin-toast';
+                toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#1b2820;color:#ffffff;padding:12px 24px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.3);z-index:999999;font-size:0.92rem;border:1px solid #3c5445;display:flex;align-items:center;font-family:sans-serif;';
+                toast.innerHTML = '<span class="spinner-border spinner-border-sm me-2 text-success"></span> Opening Administrator Console...';
+                document.body.appendChild(toast);
+                setTimeout(function() {
+                    window.location.href = '/admin/';
+                }, 300);
+            }
+
+            // Keyboard Shortcuts:
+            // 1. Ctrl + Shift + 1 (handles standard 1, '!', Digit1, Numpad1, keyCode 49/97)
+            // 2. Ctrl + Shift + A (A for Admin)
+            window.addEventListener('keydown', function(e) {
+                var isCtrlOrCmd = e.ctrlKey || e.metaKey;
+                var isShift = e.shiftKey;
+                if (!isCtrlOrCmd) return;
+
+                var isOne = isShift && (e.key === '1' || e.key === '!' || e.code === 'Digit1' || e.code === 'Numpad1' || e.keyCode === 49 || e.keyCode === 97 || e.which === 49);
+                var isA = isShift && (e.key === 'a' || e.key === 'A' || e.code === 'KeyA' || e.keyCode === 65);
+
+                if (isOne || isA) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    redirectToAdmin();
+                }
+            }, true);
+
+            // Secret Click Trigger: Triple-click the brand logo ("GeoCadastre") to open Admin
+            var brandLogo = document.querySelector('.navbar-brand');
+            if (brandLogo) {
+                var clicks = 0;
+                var clickTimer = null;
+                brandLogo.addEventListener('click', function(e) {
+                    clicks++;
+                    if (clicks === 3) {
+                        e.preventDefault();
+                        clicks = 0;
+                        redirectToAdmin();
+                    } else {
+                        clearTimeout(clickTimer);
+                        clickTimer = setTimeout(function() { clicks = 0; }, 600);
+                    }
+                });
+            }
+        })();
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
