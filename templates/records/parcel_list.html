@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Land Parcels Registry{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h1 class="h3 fw-bold text-dark mb-0">Cadastral Land Parcel Records</h1>
+        <p class="text-muted small mb-0">Search, filter, inspect and validate digitized cadastral land units.</p>
+    </div>
+    <a href="{% url 'parcel_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i> Digitize New Parcel
+    </a>
+</div>
+
+<!-- Search and Multi-Parameter Filter Card -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body bg-white rounded">
+        <form method="GET" action="{% url 'parcel_list' %}" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label small fw-semibold text-muted">Search Keyword</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Survey No, Deed, Village, Owner...">
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-muted">Land Use Type</label>
+                <select name="land_type" class="form-select">
+                    <option value="">-- All Classifications --</option>
+                    {% for code, label in land_type_choices %}
+                        <option value="{{ code }}" {% if selected_land_type == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold text-muted">Digitization Status</label>
+                <select name="status" class="form-select">
+                    <option value="">-- All Statuses --</option>
+                    {% for code, label in status_choices %}
+                        <option value="{{ code }}" {% if selected_status == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i> Filter
+                </button>
+                {% if query or selected_land_type or selected_status or selected_district %}
+                    <a href="{% url 'parcel_list' %}" class="btn btn-outline-secondary" title="Reset Filters">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Results Summary Header -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="text-muted small">
+        Showing <strong>{{ result_count }}</strong> land parcels
+        {% if query %} matching <span class="badge bg-secondary">"{{ query }}"</span>{% endif %}
+        {% if selected_land_type %} &bull; Type: <span class="badge bg-light text-dark border">{{ selected_land_type }}</span>{% endif %}
+        {% if selected_status %} &bull; Status: <span class="badge bg-light text-dark border">{{ selected_status }}</span>{% endif %}
+    </div>
+    {% if all_districts %}
+    <div class="small">
+        <span class="text-muted me-1">Quick District Jump:</span>
+        {% for d in all_districts|slice:":4" %}
+            <a href="{% url 'parcels_by_district' district=d %}" class="badge bg-light text-primary border text-decoration-none me-1">{{ d }}</a>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Cadastral Records Table -->
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover cadastral-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Survey & Title Deed</th>
+                    <th>Registered Owner</th>
+                    <th>Location / District</th>
+                    <th>Area (m² & Acres)</th>
+                    <th>Valuation (INR)</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for parcel in parcels %}
+                <tr>
+                    <td>
+                        <a href="{% url 'parcel_detail' slug=parcel.slug %}" class="fw-bold text-decoration-none text-dark">
+                            {{ parcel.survey_number }}
+                        </a>
+                        <div class="text-muted small">Deed: <code>{{ parcel.title_deed_number }}</code></div>
+                    </td>
+                    <td>
+                        <div class="fw-semibold">{{ parcel.owner.full_name }}</div>
+                        <div class="small text-muted">ID: {{ parcel.owner.national_id }}</div>
+                    </td>
+                    <td>
+                        <div><a href="{% url 'parcels_by_district' district=parcel.district %}" class="text-decoration-none text-primary fw-medium">{{ parcel.district }}</a></div>
+                        <div class="small text-muted">{{ parcel.village }}, {{ parcel.taluk }}</div>
+                    </td>
+                    <td>
+                        <div>{{ parcel.area_sq_meters|floatformat:2 }} m²</div>
+                        <div class="small text-muted">({{ parcel.area_in_acres }} acres)</div>
+                    </td>
+                    <td>
+                        <span class="fw-semibold">₹{{ parcel.market_valuation|floatformat:2 }}</span>
+                        <div class="small text-muted">{{ parcel.get_land_type_display }}</div>
+                    </td>
+                    <td>
+                        {% if parcel.digitization_status == 'VERIFIED' %}
+                            <span class="badge badge-verified"><i class="bi bi-shield-check"></i> Verified</span>
+                        {% elif parcel.digitization_status == 'PENDING' %}
+                            <span class="badge badge-pending"><i class="bi bi-hourglass-split"></i> Pending</span>
+                        {% elif parcel.digitization_status == 'DISPUTED' %}
+                            <span class="badge badge-disputed"><i class="bi bi-exclamation-octagon-fill"></i> Disputed</span>
+                        {% else %}
+                            <span class="badge badge-flagged"><i class="bi bi-flag-fill"></i> Flagged</span>
+                        {% endif %}
+                        
+                        {% if parcel.is_disputed %}
+                            <div class="badge bg-danger-subtle text-danger border border-danger-subtle mt-1 d-block">
+                                <i class="bi bi-exclamation-triangle"></i> Litigation
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'parcel_detail' slug=parcel.slug %}" class="btn btn-outline-primary" title="View Dossier">
+                                <i class="bi bi-folder2-open"></i>
+                            </a>
+                            <a href="{% url 'parcel_update' pk=parcel.pk %}" class="btn btn-outline-secondary" title="Edit Record">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'validation_create' parcel_id=parcel.id %}" class="btn btn-outline-success" title="Run Audit">
+                                <i class="bi bi-clipboard-check"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        <i class="bi bi-search fs-2 text-secondary mb-2 d-block"></i>
+                        No land records match the specified search or filter criteria.
+                        <div class="mt-2">
+                            <a href="{% url 'parcel_list' %}" class="btn btn-sm btn-outline-primary me-2">Clear Filters</a>
+                            <a href="{% url 'parcel_create' %}" class="btn btn-sm btn-primary">Add New Parcel</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

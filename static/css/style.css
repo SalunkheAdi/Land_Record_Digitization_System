@@ -1,0 +1,560 @@
+/* ==============================================================
+   Intelligent Land Record Digitization & Validation System
+   Natural & Organic Cadastral Palette - INT253 Academic Project
+   ============================================================== */
+
+:root {
+    /* Natural Earth, Forest & Stone Palette */
+    --earth-dark: #1b2820;          /* Deep spruce / dark forest timber */
+    --earth-dark-surface: #24352b;  /* Elevated timber dark */
+    --earth-forest: #2d4c3e;        /* Deep pine / evergreen primary */
+    --earth-forest-hover: #20382d;  /* Dark pine hover */
+    --earth-sage: #507563;          /* Soft sage green */
+    --earth-moss: #769785;          /* Light moss accent */
+    --earth-stone: #f7f6f2;         /* Warm linen / limestone body background */
+    --earth-card: #ffffff;          /* Card background */
+    --earth-card-muted: #f2f0eb;    /* Muted card / table header */
+    --earth-border: #e2ded4;        /* Soft sand / warm stone border */
+    --earth-border-subtle: #edeae2;
+    --earth-text: #232724;          /* Deep mineral charcoal text */
+    --earth-text-muted: #6b6f6a;    /* Weathered stone muted text */
+    --earth-sand: #e8e2d5;          /* Warm sand */
+    
+    /* Natural Status Colors (Muted botanical & mineral tones) */
+    --status-verified-bg: #edf5f0;  /* Laurel leaf tint */
+    --status-verified-text: #21593e;/* Deep laurel */
+    --status-verified-border: #c8e2d3;
+    
+    --status-pending-bg: #fcf6e8;   /* Warm wheat / straw tint */
+    --status-pending-text: #8c631b;  /* Raw umber / warm ochre */
+    --status-pending-border: #edd9b2;
+    
+    --status-disputed-bg: #faefed;  /* Terra cotta tint */
+    --status-disputed-text: #963a2c; /* Red clay / burnt sienna */
+    --status-disputed-border: #ebd0cb;
+    
+    --status-flagged-bg: #fcf1e6;   /* Desert clay / sandstone */
+    --status-flagged-text: #994e1d;  /* Russet */
+    --status-flagged-border: #ebd4bf;
+
+    --status-info-bg: #edf2f5;      /* Slate river water */
+    --status-info-text: #2e5163;    /* Mineral slate */
+    --status-info-border: #c9dbe3;
+
+    --shadow-soft: 0 2px 6px rgba(35, 39, 36, 0.04), 0 1px 2px rgba(35, 39, 36, 0.03);
+    --shadow-elevated: 0 8px 18px rgba(35, 39, 36, 0.06), 0 2px 4px rgba(35, 39, 36, 0.04);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--earth-stone);
+    color: var(--earth-text);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header & Navigation Bar */
+.custom-nav {
+    background: var(--earth-dark) !important;
+    border-bottom: 1px solid #2e4235;
+    box-shadow: 0 2px 8px rgba(15, 25, 20, 0.12);
+}
+
+.navbar-brand {
+    color: #f2f5f3 !important;
+    letter-spacing: -0.01em;
+}
+
+.navbar-brand i {
+    color: #92bfa5 !important;
+}
+
+.navbar-brand-badge {
+    background: #2a3d31;
+    color: #d1dfd6;
+    border: 1px solid #3c5445;
+    padding: 3px 9px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-left: 8px;
+}
+
+.nav-link {
+    color: #cbd7cf !important;
+    font-weight: 500;
+    font-size: 0.92rem;
+    padding: 0.5rem 0.85rem !important;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-link.active {
+    color: #ffffff !important;
+    background: #25392d;
+    border: 1px solid #385040;
+}
+
+/* Dropdown styling */
+.dropdown-menu {
+    background-color: #ffffff;
+    border: 1px solid var(--earth-border);
+    box-shadow: var(--shadow-elevated);
+    border-radius: 8px;
+    padding: 0.4rem;
+}
+
+.dropdown-item {
+    color: var(--earth-text);
+    font-size: 0.9rem;
+    border-radius: 5px;
+    padding: 0.45rem 0.8rem;
+}
+
+.dropdown-item:hover {
+    background-color: var(--earth-card-muted);
+    color: var(--earth-forest);
+}
+
+/* Page Containers */
+main.container {
+    flex: 1 0 auto;
+    padding-top: 1.75rem;
+    padding-bottom: 3.5rem;
+}
+
+/* Cards & Containers */
+.card {
+    background-color: var(--earth-card);
+    border: 1px solid var(--earth-border);
+    border-radius: 10px;
+    box-shadow: var(--shadow-soft);
+}
+
+.card-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--earth-border);
+    padding: 1rem 1.25rem;
+}
+
+/* Stat & Metrics Cards */
+.stat-card {
+    background: #ffffff;
+    border-radius: 9px;
+    padding: 1.25rem 1.4rem;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid var(--earth-border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-elevated);
+}
+
+.stat-title {
+    font-size: 0.8rem;
+    color: var(--earth-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.stat-number {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: var(--earth-forest);
+    margin-top: 0.2rem;
+    line-height: 1.2;
+}
+
+.stat-icon {
+    font-size: 1.9rem;
+    opacity: 0.85;
+}
+
+/* Natural Border Accents for Stat Cards */
+.border-stat-total {
+    border-left: 4px solid var(--earth-forest) !important;
+}
+
+.border-stat-pending {
+    border-left: 4px solid #b8862d !important;
+}
+
+.border-stat-disputed {
+    border-left: 4px solid #9e3d2f !important;
+}
+
+.border-stat-score {
+    border-left: 4px solid #386950 !important;
+}
+
+/* Buttons - Natural Tones Override */
+.btn-primary {
+    background-color: var(--earth-forest) !important;
+    border-color: var(--earth-forest) !important;
+    color: #ffffff !important;
+    font-weight: 500;
+    box-shadow: 0 1px 3px rgba(35, 55, 45, 0.15);
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--earth-forest-hover) !important;
+    border-color: var(--earth-forest-hover) !important;
+    color: #ffffff !important;
+}
+
+.btn-outline-primary {
+    color: var(--earth-forest) !important;
+    border-color: #8faea0 !important;
+    background-color: transparent !important;
+    font-weight: 500;
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--earth-forest) !important;
+    border-color: var(--earth-forest) !important;
+    color: #ffffff !important;
+}
+
+.btn-outline-secondary {
+    color: var(--earth-text-muted) !important;
+    border-color: var(--earth-border) !important;
+    background-color: transparent !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: var(--earth-card-muted) !important;
+    color: var(--earth-text) !important;
+    border-color: #cac5b8 !important;
+}
+
+.btn-info {
+    background-color: var(--earth-sage) !important;
+    border-color: var(--earth-sage) !important;
+    color: #ffffff !important;
+}
+
+.btn-info:hover {
+    background-color: #405e4f !important;
+    border-color: #405e4f !important;
+    color: #ffffff !important;
+}
+
+.btn-outline-info {
+    color: var(--earth-sage) !important;
+    border-color: #9cb5a8 !important;
+}
+
+.btn-outline-info:hover {
+    background-color: var(--earth-sage) !important;
+    color: #ffffff !important;
+}
+
+.btn-danger {
+    background-color: #963a2c !important;
+    border-color: #963a2c !important;
+    color: #ffffff !important;
+}
+
+.btn-danger:hover {
+    background-color: #7b2e22 !important;
+    border-color: #7b2e22 !important;
+}
+
+.btn-success {
+    background-color: #245e42 !important;
+    border-color: #245e42 !important;
+    color: #ffffff !important;
+}
+
+.btn-success:hover {
+    background-color: #1b4933 !important;
+    border-color: #1b4933 !important;
+}
+
+/* Custom Natural Badges */
+.badge-verified {
+    background-color: var(--status-verified-bg);
+    color: var(--status-verified-text);
+    border: 1px solid var(--status-verified-border);
+    font-weight: 600;
+    padding: 0.35rem 0.6rem;
+    border-radius: 5px;
+}
+
+.badge-pending {
+    background-color: var(--status-pending-bg);
+    color: var(--status-pending-text);
+    border: 1px solid var(--status-pending-border);
+    font-weight: 600;
+    padding: 0.35rem 0.6rem;
+    border-radius: 5px;
+}
+
+.badge-disputed, .badge-rejected {
+    background-color: var(--status-disputed-bg);
+    color: var(--status-disputed-text);
+    border: 1px solid var(--status-disputed-border);
+    font-weight: 600;
+    padding: 0.35rem 0.6rem;
+    border-radius: 5px;
+}
+
+.badge-flagged, .badge-conditional {
+    background-color: var(--status-flagged-bg);
+    color: var(--status-flagged-text);
+    border: 1px solid var(--status-flagged-border);
+    font-weight: 600;
+    padding: 0.35rem 0.6rem;
+    border-radius: 5px;
+}
+
+.badge-low-risk {
+    background-color: var(--status-verified-bg);
+    color: var(--status-verified-text);
+    border: 1px solid var(--status-verified-border);
+    font-weight: 600;
+}
+
+.badge-medium-risk {
+    background-color: var(--status-pending-bg);
+    color: var(--status-pending-text);
+    border: 1px solid var(--status-pending-border);
+    font-weight: 600;
+}
+
+.badge-high-risk {
+    background-color: var(--status-disputed-bg);
+    color: var(--status-disputed-text);
+    border: 1px solid var(--status-disputed-border);
+    font-weight: 600;
+}
+
+/* Bootstrap Pill & Badge Overrides */
+.badge.bg-primary {
+    background-color: var(--earth-forest) !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-secondary {
+    background-color: #636b66 !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-success {
+    background-color: #245e42 !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-warning {
+    background-color: #b8862d !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-danger {
+    background-color: #963a2c !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-info {
+    background-color: var(--earth-sage) !important;
+    color: #ffffff !important;
+}
+
+/* Standard Table Enhancements */
+.cadastral-table th {
+    background-color: var(--earth-card-muted);
+    color: #4b524c;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.74rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--earth-border);
+    padding: 0.85rem 1rem;
+}
+
+.cadastral-table td {
+    vertical-align: middle;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--earth-border-subtle);
+}
+
+.table-hover tbody tr:hover {
+    background-color: #fbfaf7;
+}
+
+/* Dossier & Detail Card */
+.dossier-card {
+    background: #ffffff;
+    border-radius: 10px;
+    border: 1px solid var(--earth-border);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+}
+
+.dossier-header {
+    background: var(--earth-dark-surface);
+    color: #f3f6f4;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #334739;
+}
+
+.dossier-header h1 {
+    letter-spacing: -0.02em;
+}
+
+.dossier-header .badge {
+    background-color: #334739 !important;
+    color: #d1dfd6 !important;
+    border: 1px solid #445d4b;
+}
+
+.dossier-body {
+    padding: 2rem;
+}
+
+.info-label {
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    color: var(--earth-text-muted);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.2rem;
+}
+
+.info-value {
+    font-size: 1.02rem;
+    color: var(--earth-text);
+    font-weight: 500;
+}
+
+/* Live AI Validation Box - Natural Botanical Tone */
+.ai-validation-box {
+    background: #f3f6f3;
+    border: 1px solid #c9d8ce;
+    border-radius: 8px;
+    padding: 1.35rem;
+    margin-top: 1.5rem;
+}
+
+.ai-validation-box h5 {
+    color: var(--earth-forest);
+    font-weight: 700;
+}
+
+/* Form inputs & focus states */
+.form-control, .form-select {
+    border-color: var(--earth-border);
+    color: var(--earth-text);
+    background-color: #ffffff;
+    border-radius: 6px;
+    padding: 0.55rem 0.8rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--earth-sage);
+    box-shadow: 0 0 0 0.2rem rgba(80, 117, 99, 0.15);
+}
+
+.form-label {
+    color: #353a36;
+    margin-bottom: 0.3rem;
+}
+
+/* Natural Alerts */
+.alert-success {
+    background-color: var(--status-verified-bg);
+    color: var(--status-verified-text);
+    border-color: var(--status-verified-border);
+}
+
+.alert-warning {
+    background-color: var(--status-pending-bg);
+    color: var(--status-pending-text);
+    border-color: var(--status-pending-border);
+}
+
+.alert-danger {
+    background-color: var(--status-disputed-bg);
+    color: var(--status-disputed-text);
+    border-color: var(--status-disputed-border);
+}
+
+.alert-info {
+    background-color: var(--status-info-bg);
+    color: var(--status-info-text);
+    border-color: var(--status-info-border);
+}
+
+/* Breadcrumb */
+.breadcrumb-item a {
+    color: var(--earth-sage);
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--earth-forest);
+    text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+    color: var(--earth-text-muted);
+}
+
+/* Text utility overrides for cohesive earth tones */
+.text-primary {
+    color: var(--earth-forest) !important;
+}
+
+.text-success {
+    color: #21593e !important;
+}
+
+.text-warning {
+    color: #9c6b1f !important;
+}
+
+.text-danger {
+    color: #963a2c !important;
+}
+
+.text-info {
+    color: var(--earth-sage) !important;
+}
+
+.text-secondary {
+    color: var(--earth-text-muted) !important;
+}
+
+/* Footer */
+footer {
+    background: var(--earth-dark);
+    color: #9ab0a3;
+    padding: 1.6rem 0;
+    margin-top: auto;
+    font-size: 0.85rem;
+    border-top: 1px solid #2b3d32;
+}
+
+footer strong {
+    color: #d1dfd6;
+}

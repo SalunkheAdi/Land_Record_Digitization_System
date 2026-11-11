@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Deletion - {{ parcel.survey_number }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-7">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white py-3">
+                <h5 class="card-title fw-bold mb-0">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Confirm Land Parcel Deletion
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <p class="lead">
+                    Are you sure you want to permanently delete this cadastral land parcel from the digitized registry?
+                </p>
+
+                <div class="alert alert-warning border">
+                    <ul class="mb-0">
+                        <li><strong>Survey Number:</strong> {{ parcel.survey_number }}</li>
+                        <li><strong>Title Deed:</strong> {{ parcel.title_deed_number }}</li>
+                        <li><strong>Owner:</strong> {{ parcel.owner.full_name }}</li>
+                        <li><strong>District:</strong> {{ parcel.district }}, {{ parcel.village }}</li>
+                        <li><strong>Area:</strong> {{ parcel.area_sq_meters }} m² ({{ parcel.area_in_acres }} acres)</li>
+                    </ul>
+                </div>
+
+                <p class="text-danger small">
+                    <i class="bi bi-info-circle me-1"></i> Warning: Deleting this parcel will also cascade and delete all associated historical inspection audits and validation records.
+                </p>
+
+                <form method="POST" class="d-flex justify-content-end gap-2 mt-4">
+                    {% csrf_token %}
+                    <a href="{% url 'parcel_detail' slug=parcel.slug %}" class="btn btn-secondary">
+                        Cancel & Return
+                    </a>
+                    <button type="submit" class="btn btn-danger px-4">
+                        <i class="bi bi-trash-fill me-1"></i> Yes, Permanently Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Validation Audits & Cadastral Compliance Logs{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h1 class="h3 fw-bold text-dark mb-0">Cadastral Validation & Inspection Audits</h1>
+        <p class="text-muted small mb-0">Audit history, automated AI compliance health scores, and legal determination seals.</p>
+    </div>
+    <div class="btn-group">
+        <a href="{% url 'parcel_list' %}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-geo-alt me-1"></i> Select Parcel to Audit
+        </a>
+    </div>
+</div>
+
+<!-- Filter card -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <form method="GET" action="{% url 'validation_list' %}" class="row g-3">
+            <div class="col-md-5">
+                <label class="form-label small fw-semibold text-muted">Risk Assessment Level</label>
+                <select name="risk" class="form-select">
+                    <option value="">-- All Risk Levels --</option>
+                    {% for code, label in risk_choices %}
+                        <option value="{{ code }}" {% if selected_risk == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-5">
+                <label class="form-label small fw-semibold text-muted">Final Determination</label>
+                <select name="determination" class="form-select">
+                    <option value="">-- All Determinations --</option>
+                    {% for code, label in determination_choices %}
+                        <option value="{{ code }}" {% if selected_status == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Audits Table -->
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover cadastral-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Audit ID</th>
+                    <th>Cadastral Parcel</th>
+                    <th>Fiscal Cycle</th>
+                    <th>Inspecting Officer</th>
+                    <th>AI Score</th>
+                    <th>Risk Category</th>
+                    <th>Determination</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for audit in audits %}
+                <tr>
+                    <td><code>{{ audit.inspection_code }}</code></td>
+                    <td>
+                        <a href="{% url 'parcel_detail' slug=audit.parcel.slug %}" class="fw-bold text-decoration-none">
+                            {{ audit.parcel.survey_number }}
+                        </a>
+                        <div class="small text-muted">{{ audit.parcel.district }} &bull; {{ audit.parcel.owner.full_name }}</div>
+                    </td>
+                    <td>
+                        <a href="{% url 'audit_fiscal_year' year=audit.fiscal_year %}" class="badge bg-light text-dark border text-decoration-none">
+                            FY {{ audit.fiscal_year }}
+                        </a>
+                    </td>
+                    <td>{{ audit.inspector_name }}</td>
+                    <td>
+                        <span class="badge {% if audit.compliance_score >= 80 %}bg-success{% elif audit.compliance_score >= 50 %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6">
+                            {{ audit.compliance_score }}%
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge {% if audit.risk_level == 'LOW' %}badge-low-risk{% elif audit.risk_level == 'MEDIUM' %}badge-medium-risk{% else %}badge-high-risk{% endif %}">
+                            {{ audit.get_risk_level_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if audit.final_determination == 'APPROVED' %}
+                            <span class="badge badge-verified"><i class="bi bi-check-circle"></i> Approved</span>
+                        {% elif audit.final_determination == 'CONDITIONAL' %}
+                            <span class="badge badge-conditional"><i class="bi bi-clock"></i> Conditional</span>
+                        {% else %}
+                            <span class="badge badge-rejected"><i class="bi bi-x-octagon"></i> Rejected</span>
+                        {% endif %}
+                    </td>
+                    <td class="small text-muted">{{ audit.inspection_date|date:"d M Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-5 text-muted">
+                        No validation audits match the filter criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

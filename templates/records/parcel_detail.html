@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block title %}Parcel {{ parcel.survey_number }} - Cadastre Dossier{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'parcel_list' %}">Parcels</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ parcel.survey_number }}</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="dossier-card mb-4">
+    <!-- Header with Natural Timber Slate Tone -->
+    <div class="dossier-header d-flex flex-wrap justify-content-between align-items-center">
+        <div>
+            <span class="badge mb-1">Cadastral Reference: {{ parcel.slug }}</span>
+            <h1 class="h3 fw-bold mb-1">Survey No: {{ parcel.survey_number }}</h1>
+            <div class="small opacity-75">Title Deed: {{ parcel.title_deed_number }} &bull; Registered: {{ parcel.registered_date|date:"F d, Y" }}</div>
+        </div>
+        <div class="d-flex gap-2 mt-2 mt-md-0">
+            <a href="{% url 'parcel_update' pk=parcel.pk %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-pencil-square me-1"></i> Edit Record
+            </a>
+            <a href="{% url 'parcel_delete' pk=parcel.pk %}" class="btn btn-danger btn-sm">
+                <i class="bi bi-trash me-1"></i> Delete
+            </a>
+        </div>
+    </div>
+
+    <!-- Dossier Body -->
+    <div class="dossier-body">
+        <div class="row g-4">
+            <!-- Left Column: Core Cadastral Specifications -->
+            <div class="col-md-7">
+                <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                    <i class="bi bi-geo-alt me-1" style="color: var(--earth-forest);"></i> Geographic & Boundary Specifications
+                </h5>
+
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="info-label">District</div>
+                        <div class="info-value">
+                            <a href="{% url 'parcels_by_district' district=parcel.district %}" class="text-decoration-none" style="color: var(--earth-forest);">
+                                {{ parcel.district }}
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="info-label">Taluk / Tehsil</div>
+                        <div class="info-value">{{ parcel.taluk }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="info-label">Village / Locality</div>
+                        <div class="info-value">{{ parcel.village }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="info-label">Land Classification</div>
+                        <div class="info-value">
+                            <span class="badge bg-secondary">{{ parcel.get_land_type_display }}</span>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="info-label">Area (Sq. Meters)</div>
+                        <div class="info-value fw-bold" style="color: var(--earth-forest);">{{ parcel.area_sq_meters|floatformat:2 }} m²</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="info-label">Calculated Acreage</div>
+                        <div class="info-value">{{ parcel.area_in_acres }} Acres</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="info-label">Estimated Valuation</div>
+                        <div class="info-value fw-bold" style="color: #21593e;">₹{{ parcel.market_valuation|floatformat:2 }}</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="info-label">Centroid Coordinates</div>
+                        <div class="info-value">
+                            <code>{{ parcel.gis_coordinates }}</code>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Automated Validation Check Section -->
+                <div class="ai-validation-box mt-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0"><i class="bi bi-check2-circle me-1"></i> Cadastral Heuristic & Validation Check</h5>
+                        <button id="btn-run-live-ai" data-parcel-slug="{{ parcel.slug }}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-play-circle me-1"></i> Run Live Verification
+                        </button>
+                    </div>
+                    <p class="small text-muted mb-0">
+                        Evaluates survey number syntax, GPS centroid sanity, circle rate thresholds, and zoning subdivision compliance.
+                    </p>
+                    <div class="mt-2">
+                        <a href="{% url 'api_validate_parcel' slug=parcel.slug %}" target="_blank" class="small text-decoration-none" style="color: var(--earth-sage);">
+                            <i class="bi bi-code-slash me-1"></i> View Raw JSON API Payload
+                        </a>
+                    </div>
+
+                    <!-- Async AI Results Area -->
+                    <div id="ai-live-results" class="mt-3 d-none"></div>
+                </div>
+            </div>
+
+            <!-- Right Column: Registered Owner & Validation Status -->
+            <div class="col-md-5">
+                <div class="card bg-light border p-3 rounded mb-4" style="background-color: var(--earth-card-muted) !important;">
+                    <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">
+                        <i class="bi bi-person-badge me-1" style="color: var(--earth-forest);"></i> Registered Land Owner
+                    </h5>
+                    <div class="mb-2">
+                        <div class="info-label">Full Name</div>
+                        <div class="info-value fw-bold">{{ parcel.owner.full_name }}</div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="info-label">National ID / Citizen Hash</div>
+                        <div class="info-value"><code>{{ parcel.owner.national_id }}</code></div>
+                    </div>
+                    <div class="mb-2">
+                        <div class="info-label">Phone & Email</div>
+                        <div class="info-value small">
+                            <i class="bi bi-telephone me-1"></i> {{ parcel.owner.phone }}<br>
+                            {% if parcel.owner.email %}
+                                <i class="bi bi-envelope me-1"></i> {{ parcel.owner.email }}
+                            {% else %}
+                                <span class="text-muted">No email registered</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="info-label">Residential Address</div>
+                        <div class="small text-muted">{{ parcel.owner.residential_address }}</div>
+                    </div>
+                </div>
+
+                <!-- Status Card -->
+                <div class="card border p-3 rounded">
+                    <h6 class="fw-bold text-dark mb-2">Current System Status</h6>
+                    <div class="mb-3">
+                        {% if parcel.digitization_status == 'VERIFIED' %}
+                            <div class="alert alert-success py-2 mb-0">
+                                <i class="bi bi-shield-check me-1"></i> <strong>Verified & Sealed</strong> in official cadastre.
+                            </div>
+                        {% elif parcel.digitization_status == 'PENDING' %}
+                            <div class="alert alert-warning py-2 mb-0">
+                                <i class="bi bi-clock me-1"></i> <strong>Pending Validation</strong> by cadastral officer.
+                            </div>
+                        {% elif parcel.digitization_status == 'DISPUTED' %}
+                            <div class="alert alert-danger py-2 mb-0">
+                                <i class="bi bi-exclamation-octagon me-1"></i> <strong>Disputed Record:</strong> Title under active litigation.
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning py-2 mb-0">
+                                <i class="bi bi-flag me-1"></i> <strong>Flagged:</strong> Survey discrepancy noted.
+                            </div>
+                        {% endif %}
+                    </div>
+                    <a href="{% url 'validation_create' parcel_id=parcel.id %}" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-clipboard-check me-1"></i> Record Official Inspection Audit
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cadastral Audit Log Trail -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="card-title fw-bold text-dark mb-0">
+            <i class="bi bi-journal-check me-1" style="color: var(--earth-forest);"></i> Inspection & Validation Audit History
+        </h5>
+        <span class="badge bg-secondary">{{ audits|length }} Audits Logged</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Audit Code</th>
+                    <th>Date</th>
+                    <th>Fiscal Year</th>
+                    <th>Officer</th>
+                    <th>Score</th>
+                    <th>Risk</th>
+                    <th>Determination</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for audit in audits %}
+                <tr>
+                    <td><code>{{ audit.inspection_code }}</code></td>
+                    <td>{{ audit.inspection_date|date:"d M Y" }}</td>
+                    <td>
+                        <a href="{% url 'audit_fiscal_year' year=audit.fiscal_year %}" class="badge bg-light text-dark border text-decoration-none">
+                            FY {{ audit.fiscal_year }}
+                        </a>
+                    </td>
+                    <td>{{ audit.inspector_name }}</td>
+                    <td>
+                        <span class="fw-bold {% if audit.compliance_score >= 80 %}text-success{% elif audit.compliance_score >= 50 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ audit.compliance_score }}/100
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge {% if audit.risk_level == 'LOW' %}badge-low-risk{% elif audit.risk_level == 'MEDIUM' %}badge-medium-risk{% else %}badge-high-risk{% endif %}">
+                            {{ audit.get_risk_level_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if audit.final_determination == 'APPROVED' %}
+                            <span class="badge badge-verified">Approved</span>
+                        {% elif audit.final_determination == 'CONDITIONAL' %}
+                            <span class="badge badge-pending">Conditional</span>
+                        {% else %}
+                            <span class="badge badge-disputed">Rejected</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">
+                        No official physical or automated audits recorded yet. 
+                        <a href="{% url 'validation_create' parcel_id=parcel.id %}" style="color: var(--earth-forest);">Perform initial audit now</a>.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

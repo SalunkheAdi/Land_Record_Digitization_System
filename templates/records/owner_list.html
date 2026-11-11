@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Certified Land Owners Directory{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h1 class="h3 fw-bold text-dark mb-0">Certified Land Owners Registry</h1>
+        <p class="text-muted small mb-0">Directory of authenticated citizens and property title holders.</p>
+    </div>
+    <a href="{% url 'owner_create' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus me-1"></i> Register New Owner
+    </a>
+</div>
+
+<!-- Search -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <form method="GET" action="{% url 'owner_list' %}" class="row g-2">
+            <div class="col-md-10">
+                <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search by Citizen Name, National ID / Aadhaar Hash, Phone...">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search me-1"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3">
+    {% for owner in owners %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="fw-bold mb-0 text-dark">{{ owner.full_name }}</h5>
+                    <span class="badge bg-primary rounded-pill">{{ owner.parcel_count }} parcels</span>
+                </div>
+                <div class="small text-muted mb-2">
+                    <i class="bi bi-credit-card-2-front me-1"></i> ID: <code>{{ owner.national_id }}</code>
+                </div>
+                <div class="small mb-1">
+                    <i class="bi bi-telephone text-secondary me-1"></i> {{ owner.phone }}
+                </div>
+                <div class="small mb-2">
+                    <i class="bi bi-envelope text-secondary me-1"></i> {{ owner.email|default:"No email registered" }}
+                </div>
+                <div class="small text-muted border-top pt-2 mt-2">
+                    <strong>Address:</strong> {{ owner.residential_address|truncatewords:10 }}
+                </div>
+            </div>
+            <div class="card-footer bg-white border-0 pt-0 pb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="small text-muted">Enrolled: {{ owner.created_at|date:"d M Y" }}</span>
+                    <a href="{% url 'parcel_list' %}?q={{ owner.national_id }}" class="btn btn-sm btn-outline-info">
+                        View Parcels &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5 text-muted">
+        <i class="bi bi-people fs-1 text-secondary mb-2 d-block"></i>
+        No registered owners found. Click "Register New Owner" to add one.
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

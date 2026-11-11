@@ -1,0 +1,11 @@
+# Files ignored by Vercel deployment
+.git/
+.gitignore
+.vscode/
+.idea/
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+check_all_functionality.py

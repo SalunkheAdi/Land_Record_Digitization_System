@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block title %}District Parcels: {{ district }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'parcel_list' %}">Parcels</a></li>
+            <li class="breadcrumb-item active" aria-current="page">District: {{ district }}</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h1 class="h3 fw-bold text-dark mb-0">District Cadastre: {{ district }}</h1>
+        <p class="text-muted small mb-0">
+            Cadastral units registered under jurisdiction of <strong>{{ district }}</strong> district administration.
+        </p>
+    </div>
+    <div>
+        <a href="{% url 'parcel_create' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-circle me-1"></i> Add Parcel in {{ district }}
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <span class="fw-bold">Found {{ result_count }} parcels in {{ district }}</span>
+        <a href="{% url 'parcel_list' %}" class="btn btn-outline-secondary btn-sm">View All Districts</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover cadastral-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Survey Number</th>
+                    <th>Village / Taluk</th>
+                    <th>Owner</th>
+                    <th>Classification</th>
+                    <th>Area (m²)</th>
+                    <th>Valuation (INR)</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for parcel in parcels %}
+                <tr>
+                    <td>
+                        <a href="{% url 'parcel_detail' slug=parcel.slug %}" class="fw-bold text-decoration-none">
+                            {{ parcel.survey_number }}
+                        </a>
+                        <div class="small text-muted">{{ parcel.title_deed_number }}</div>
+                    </td>
+                    <td>{{ parcel.village }}, {{ parcel.taluk }}</td>
+                    <td>{{ parcel.owner.full_name }}</td>
+                    <td><span class="badge bg-light text-dark border">{{ parcel.get_land_type_display }}</span></td>
+                    <td>{{ parcel.area_sq_meters|floatformat:1 }}</td>
+                    <td>₹{{ parcel.market_valuation|floatformat:2 }}</td>
+                    <td>
+                        {% if parcel.digitization_status == 'VERIFIED' %}
+                            <span class="badge badge-verified">Verified</span>
+                        {% elif parcel.digitization_status == 'PENDING' %}
+                            <span class="badge badge-pending">Pending</span>
+                        {% elif parcel.digitization_status == 'DISPUTED' %}
+                            <span class="badge badge-disputed">Disputed</span>
+                        {% else %}
+                            <span class="badge badge-flagged">Flagged</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'parcel_detail' slug=parcel.slug %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i> Dossier
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">
+                        No land parcels registered yet in {{ district }}.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

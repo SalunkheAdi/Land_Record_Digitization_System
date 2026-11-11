@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard & Cadastral Overview{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h1 class="h3 fw-bold text-dark mb-0">Cadastral Digitization & Validation Dashboard</h1>
+        <p class="text-muted small mb-0">Overview of digitized land parcels, compliance health scores, and certified title verification.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'parcel_create' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-circle me-1"></i> Register New Parcel
+        </a>
+        <a href="{% url 'owner_create' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-person-plus me-1"></i> Enroll Owner
+        </a>
+    </div>
+</div>
+
+<!-- System Statistics Row with Natural Earth Tones -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card border-stat-total">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-title">Total Parcels</div>
+                    <div class="stat-number">{{ total_parcels }}</div>
+                </div>
+                <div class="stat-icon" style="color: var(--earth-forest);"><i class="bi bi-map"></i></div>
+            </div>
+            <div class="small text-muted mt-2">
+                <i class="bi bi-shield-check text-success"></i> {{ verified_parcels }} Fully Verified
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card border-stat-pending">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-title">Pending Validation</div>
+                    <div class="stat-number" style="color: #9c6b1f;">{{ pending_parcels }}</div>
+                </div>
+                <div class="stat-icon" style="color: #bf8933;"><i class="bi bi-hourglass-split"></i></div>
+            </div>
+            <div class="small text-muted mt-2">
+                Awaiting officer review & seal
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card border-stat-disputed">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-title">Litigation / Disputed</div>
+                    <div class="stat-number text-danger">{{ disputed_parcels }}</div>
+                </div>
+                <div class="stat-icon" style="color: #963a2c;"><i class="bi bi-exclamation-octagon"></i></div>
+            </div>
+            <div class="small text-muted mt-2">
+                Flagged for boundary conflicts
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card border-stat-score">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-title">Compliance Average</div>
+                    <div class="stat-number" style="color: #21593e;">{{ avg_score }}%</div>
+                </div>
+                <div class="stat-icon" style="color: #386950;"><i class="bi bi-clipboard2-check"></i></div>
+            </div>
+            <div class="small text-muted mt-2">
+                From {{ total_audits }} recorded audits
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Secondary Metrics: Valuation and District Aggregation -->
+<div class="row g-3 mb-4">
+    <div class="col-md-7">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="card-title fw-bold text-dark mb-0">Recently Digitized Land Parcels</h5>
+                <a href="{% url 'parcel_list' %}" class="btn btn-sm btn-outline-primary">View All Records &rarr;</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover cadastral-table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Survey No</th>
+                            <th>District / Locality</th>
+                            <th>Owner</th>
+                            <th>Area (m²)</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for parcel in recent_parcels %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'parcel_detail' slug=parcel.slug %}" class="fw-bold text-decoration-none text-dark">
+                                    {{ parcel.survey_number }}
+                                </a>
+                                <div class="text-muted small">{{ parcel.title_deed_number }}</div>
+                            </td>
+                            <td>
+                                <div><a href="{% url 'parcels_by_district' district=parcel.district %}" class="text-secondary text-decoration-none">{{ parcel.district }}</a></div>
+                                <span class="badge bg-light text-secondary border">{{ parcel.village }}</span>
+                            </td>
+                            <td>{{ parcel.owner.full_name }}</td>
+                            <td>{{ parcel.area_sq_meters|floatformat:1 }}</td>
+                            <td>
+                                {% if parcel.digitization_status == 'VERIFIED' %}
+                                    <span class="badge badge-verified"><i class="bi bi-shield-check"></i> Verified</span>
+                                {% elif parcel.digitization_status == 'PENDING' %}
+                                    <span class="badge badge-pending"><i class="bi bi-clock"></i> Pending</span>
+                                {% elif parcel.digitization_status == 'DISPUTED' %}
+                                    <span class="badge badge-disputed"><i class="bi bi-x-circle"></i> Disputed</span>
+                                {% else %}
+                                    <span class="badge badge-flagged"><i class="bi bi-flag"></i> Flagged</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'parcel_detail' slug=parcel.slug %}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                No land records digitized yet. Click "Register New Parcel" to begin!
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: District Distribution & Recent Audits -->
+    <div class="col-md-5">
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="card-title fw-bold text-dark mb-0">Top Districts by Parcel Density</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    {% for dist in district_stats %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <a href="{% url 'parcels_by_district' district=dist.district %}" class="fw-semibold text-decoration-none text-dark">
+                            <i class="bi bi-geo-alt text-secondary me-2"></i> {{ dist.district }}
+                        </a>
+                        <span class="badge bg-secondary rounded-pill">{{ dist.count }} parcels</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-muted text-center">No district data available.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="card-title fw-bold text-dark mb-0">Recent Validation Audits</h5>
+                <a href="{% url 'validation_list' %}" class="btn btn-sm btn-outline-secondary">History &rarr;</a>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for audit in recent_audits %}
+                    <li class="list-group-item p-3">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <span class="fw-bold">{{ audit.inspection_code }}</span>
+                                <div class="small text-muted">
+                                    Parcel: <a href="{% url 'parcel_detail' slug=audit.parcel.slug %}" class="text-secondary">{{ audit.parcel.survey_number }}</a>
+                                </div>
+                            </div>
+                            <span class="badge {% if audit.compliance_score >= 80 %}badge-verified{% elif audit.compliance_score >= 50 %}badge-pending{% else %}badge-disputed{% endif %}">
+                                Score: {{ audit.compliance_score }}/100
+                            </span>
+                        </div>
+                        <div class="small text-secondary mt-1">
+                            <i class="bi bi-calendar-event me-1"></i> {{ audit.inspection_date|date:"d M Y" }} &bull; Inspector: {{ audit.inspector_name }}
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-muted text-center py-3">No validation audits recorded yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

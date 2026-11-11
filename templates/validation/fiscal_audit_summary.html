@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Annual Cadastral Audit Report: FY {{ fiscal_year }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'validation_list' %}">Validation Audits</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Fiscal Year {{ fiscal_year }}</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h1 class="h3 fw-bold text-dark mb-0">
+            <i class="bi bi-file-earmark-text me-2" style="color: var(--earth-forest);"></i> Cadastral Audit Report — FY {{ fiscal_year }}
+        </h1>
+        <p class="text-muted small mb-0">
+            Cadastral title integrity, algorithmic compliance indices, and resolution stats for Fiscal Cycle {{ fiscal_year }}.
+        </p>
+    </div>
+    <div class="btn-group">
+        <a href="/audit/fiscal-year/2024/" class="btn btn-outline-secondary btn-sm {% if fiscal_year == 2024 %}active{% endif %}">FY 2024</a>
+        <a href="/audit/fiscal-year/2025/" class="btn btn-outline-secondary btn-sm {% if fiscal_year == 2025 %}active{% endif %}">FY 2025</a>
+        <a href="/audit/fiscal-year/2026/" class="btn btn-outline-secondary btn-sm {% if fiscal_year == 2026 %}active{% endif %}">FY 2026</a>
+    </div>
+</div>
+
+<!-- Key Performance Indicators Row with Natural Earth Borders -->
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card border-stat-total">
+            <div class="stat-title">Audits in FY {{ fiscal_year }}</div>
+            <div class="stat-number">{{ total_audits }}</div>
+            <div class="small text-muted mt-2">Total inspections logged</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card border-stat-score">
+            <div class="stat-title">Approved Titles</div>
+            <div class="stat-number text-success">{{ approved_count }}</div>
+            <div class="small text-muted mt-2">Legally clean and sealed</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card border-stat-pending">
+            <div class="stat-title">Conditional Audits</div>
+            <div class="stat-number text-warning">{{ conditional_count }}</div>
+            <div class="small text-muted mt-2">Awaiting boundary clarification</div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="stat-card border-stat-disputed">
+            <div class="stat-title">Rejected / Disputed</div>
+            <div class="stat-number text-danger">{{ rejected_count }}</div>
+            <div class="small text-muted mt-2">Encroachment or title flaw</div>
+        </div>
+    </div>
+</div>
+
+<!-- Audits List -->
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0">Inspections Recorded During FY {{ fiscal_year }}</h5>
+        <span class="badge bg-secondary">Mean Health Score: {{ avg_score }}%</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover cadastral-table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Audit Code</th>
+                    <th>Cadastral Parcel</th>
+                    <th>Survey Officer</th>
+                    <th>Inspection Date</th>
+                    <th>Health Score</th>
+                    <th>Risk Assessment</th>
+                    <th>Final Determination</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for audit in audits %}
+                <tr>
+                    <td><code>{{ audit.inspection_code }}</code></td>
+                    <td>
+                        <a href="{% url 'parcel_detail' slug=audit.parcel.slug %}" class="fw-bold text-decoration-none text-dark">
+                            {{ audit.parcel.survey_number }}
+                        </a>
+                        <div class="small text-muted">{{ audit.parcel.district }} ({{ audit.parcel.owner.full_name }})</div>
+                    </td>
+                    <td>{{ audit.inspector_name }}</td>
+                    <td>{{ audit.inspection_date|date:"d M Y" }}</td>
+                    <td>
+                        <span class="badge {% if audit.compliance_score >= 80 %}badge-verified{% elif audit.compliance_score >= 50 %}badge-pending{% else %}badge-disputed{% endif %}">
+                            {{ audit.compliance_score }}%
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge {% if audit.risk_level == 'LOW' %}badge-low-risk{% elif audit.risk_level == 'MEDIUM' %}badge-medium-risk{% else %}badge-high-risk{% endif %}">
+                            {{ audit.get_risk_level_display }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if audit.final_determination == 'APPROVED' %}
+                            <span class="badge badge-verified">Approved</span>
+                        {% elif audit.final_determination == 'CONDITIONAL' %}
+                            <span class="badge badge-pending">Conditional</span>
+                        {% else %}
+                            <span class="badge badge-disputed">Rejected</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        No cadastral validation audits on record for Fiscal Year {{ fiscal_year }}.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

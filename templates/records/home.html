@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Intelligent Land Record Digitization & Validation Portal{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Natural Forest Palette -->
+<div class="card border-0 shadow-sm mb-5 overflow-hidden" style="background: var(--earth-dark-surface); border-radius: 12px;">
+    <div class="card-body p-4 p-md-5 text-white">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge mb-3 px-3 py-2" style="background: #334739; color: #d1dfd6; border: 1px solid #445d4b; font-size: 0.8rem;">
+                    <i class="bi bi-shield-check me-1 text-success"></i> Official Cadastral Information System
+                </span>
+                <h1 class="display-5 fw-bold mb-3" style="letter-spacing: -0.02em; color: #f4f7f5;">
+                    Intelligent Land Record Digitization & Validation System
+                </h1>
+                <p class="lead mb-4" style="color: #cbd7cf; font-size: 1.12rem; max-width: 680px;">
+                    A unified digital cadastral registry engineered for digital land parcel mapping, automated title deed integrity, spatial centroid validation, and real-time litigation tracking.
+                </p>
+
+                <!-- Embedded Cadastral Search Bar -->
+                <div class="card p-2 border-0 mb-3 shadow-sm" style="background: #ffffff; border-radius: 8px;">
+                    <form method="GET" action="{% url 'parcel_list' %}" class="row g-2 align-items-center">
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-0 text-muted">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input type="text" name="q" class="form-control border-0 shadow-none ps-0" placeholder="Search by Survey No (e.g. SY-104-2B), Deed ID, Citizen, Village...">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary w-100 py-2">
+                                <i class="bi bi-compass me-1"></i> Verify Record
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 pt-2">
+                    <a href="{% url 'parcel_list' %}" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-collection me-1"></i> Browse All Records
+                    </a>
+                    <a href="{% url 'dashboard' %}" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-grid-1x2 me-1"></i> Analytics Dashboard
+                    </a>
+                    <a href="{% url 'parcel_create' %}" class="btn btn-sm" style="background-color: var(--earth-forest); color: #ffffff;">
+                        <i class="bi bi-plus-circle me-1"></i> Digitize New Parcel
+                    </a>
+                </div>
+            </div>
+
+            <!-- Hero Emblem / Visual Summary -->
+            <div class="col-lg-4 text-center mt-4 mt-lg-0 d-none d-lg-block">
+                <div class="p-4 rounded border text-start" style="background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.1) !important;">
+                    <h6 class="text-uppercase fw-bold text-muted small mb-3" style="color: #9cb5a8 !important;">Cadastral State Summary</h6>
+                    <div class="mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+                        <div class="small text-muted" style="color: #cbd7cf !important;">Digitized Land Parcels</div>
+                        <div class="h3 fw-bold mb-0 text-white">{{ total_parcels }} Parcels</div>
+                    </div>
+                    <div class="mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+                        <div class="small text-muted" style="color: #cbd7cf !important;">Authenticated Clean Titles</div>
+                        <div class="h3 fw-bold mb-0 text-success">{{ verified_parcels }} Verified</div>
+                    </div>
+                    <div>
+                        <div class="small text-muted" style="color: #cbd7cf !important;">Active Administrative Districts</div>
+                        <div class="h4 fw-bold mb-0 text-white">{{ active_districts }} Jurisdictions</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Metric Ribbons -->
+<div class="row g-3 mb-5">
+    <div class="col-6 col-md-3">
+        <div class="stat-card border-stat-total">
+            <div class="stat-title">Digitized Parcels</div>
+            <div class="stat-number">{{ total_parcels }}</div>
+            <div class="small text-muted mt-1">In active registry</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card border-stat-score">
+            <div class="stat-title">Verified Clean Titles</div>
+            <div class="stat-number text-success">{{ verified_parcels }}</div>
+            <div class="small text-muted mt-1">Legally authenticated</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card border-stat-pending">
+            <div class="stat-title">Certified Owners</div>
+            <div class="stat-number" style="color: #9c6b1f;">{{ total_owners }}</div>
+            <div class="small text-muted mt-1">Enrolled citizens</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="stat-card border-stat-score">
+            <div class="stat-title">Inspections & Audits</div>
+            <div class="stat-number" style="color: var(--earth-forest);">{{ total_audits }}</div>
+            <div class="small text-muted mt-1">Recorded assessments</div>
+        </div>
+    </div>
+</div>
+
+<!-- Core Architectural Pillars -->
+<div class="mb-5">
+    <div class="text-center mb-4">
+        <span class="badge mb-2 px-3 py-1" style="background: var(--earth-card-muted); color: var(--earth-forest); border: 1px solid var(--earth-border);">System Capabilities</span>
+        <h2 class="h3 fw-bold text-dark">Intelligent Cadastral Protection Architecture</h2>
+        <p class="text-muted small mx-auto" style="max-width: 650px;">
+            A multi-layered validation platform combining relational integrity, automated rule heuristics, and statutory revenue seals.
+        </p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 border p-3 shadow-sm">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-3 p-3 mb-3" style="background: var(--status-verified-bg); color: var(--status-verified-text); width: 48px; height: 48px;">
+                    <i class="bi bi-geo-alt-fill fs-5"></i>
+                </div>
+                <h5 class="fw-bold text-dark h6">Cadastral Digitization</h5>
+                <p class="small text-muted mb-0">
+                    Converts physical title deeds into digitized cadastral plots with GPS centroid coordinates, precise square-meter area, and calculated acreage.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 border p-3 shadow-sm">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-3 p-3 mb-3" style="background: var(--status-pending-bg); color: var(--status-pending-text); width: 48px; height: 48px;">
+                    <i class="bi bi-cpu fs-5"></i>
+                </div>
+                <h5 class="fw-bold text-dark h6">Automated Validation</h5>
+                <p class="small text-muted mb-0">
+                    Runs mathematical and heuristic checks evaluating survey number syntax, municipal subdivision ceilings, and circle rate sanity ratios in real time.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 border p-3 shadow-sm">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-3 p-3 mb-3" style="background: var(--status-disputed-bg); color: var(--status-disputed-text); width: 48px; height: 48px;">
+                    <i class="bi bi-exclamation-octagon fs-5"></i>
+                </div>
+                <h5 class="fw-bold text-dark h6">Litigation Tracking</h5>
+                <p class="small text-muted mb-0">
+                    Tracks active tribunal stay orders, encroachment notices, and title conflicts to prevent fraudulent secondary transactions and duplicate deeds.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 border p-3 shadow-sm">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-3 p-3 mb-3" style="background: var(--status-info-bg); color: var(--status-info-text); width: 48px; height: 48px;">
+                    <i class="bi bi-file-earmark-check fs-5"></i>
+                </div>
+                <h5 class="fw-bold text-dark h6">Statutory Audits</h5>
+                <p class="small text-muted mb-0">
+                    Enables revenue officers to conduct physical and digital inspections, assign 0-100 health compliance scores, and compile annual fiscal reports.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How the System Works (4 Step Flow) -->
+<div class="card border-0 shadow-sm p-4 p-md-5 mb-5" style="background-color: #ffffff; border-radius: 12px; border: 1px solid var(--earth-border) !important;">
+    <h3 class="h4 fw-bold text-dark mb-4 text-center">Standard Cadastral Verification Workflow</h3>
+    <div class="row g-4 text-center">
+        <div class="col-md-3">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center fw-bold mb-3" style="width: 44px; height: 44px; background: var(--earth-forest); color: #ffffff;">
+                1
+            </div>
+            <h6 class="fw-bold text-dark">Enrollment & Deed</h6>
+            <p class="small text-muted mb-0">Citizen is authenticated and title deed registered under cadastral survey numbers.</p>
+        </div>
+        <div class="col-md-3">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center fw-bold mb-3" style="width: 44px; height: 44px; background: var(--earth-forest); color: #ffffff;">
+                2
+            </div>
+            <h6 class="fw-bold text-dark">Spatial Demarcation</h6>
+            <p class="small text-muted mb-0">Cadastral plot area, GPS centroid, and classification (Residential/Agri) are assigned.</p>
+        </div>
+        <div class="col-md-3">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center fw-bold mb-3" style="width: 44px; height: 44px; background: var(--earth-forest); color: #ffffff;">
+                3
+            </div>
+            <h6 class="fw-bold text-dark">Rule Evaluation</h6>
+            <p class="small text-muted mb-0">Validation engine executes syntax, zoning threshold, and rate anomaly algorithms.</p>
+        </div>
+        <div class="col-md-3">
+            <div class="rounded-circle d-inline-flex align-items-center justify-content-center fw-bold mb-3" style="width: 44px; height: 44px; background: var(--earth-forest); color: #ffffff;">
+                4
+            </div>
+            <h6 class="fw-bold text-dark">Officer Seal</h6>
+            <p class="small text-muted mb-0">Inspection officer reviews findings and seals parcel as Verified or Disputed.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Verified Parcels Spotlight -->
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h3 class="h4 fw-bold text-dark mb-0">Featured Verified Land Holdings</h3>
+            <p class="small text-muted mb-0">Authenticated records with confirmed cadastral boundaries.</p>
+        </div>
+        <a href="{% url 'parcel_list' %}" class="btn btn-outline-secondary btn-sm">
+            View All {{ total_parcels }} Parcels &rarr;
+        </a>
+    </div>
+
+    <div class="row g-3">
+        {% for parcel in featured_parcels %}
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge badge-verified">
+                            <i class="bi bi-shield-check"></i> Verified
+                        </span>
+                        <span class="badge bg-light text-dark border">{{ parcel.get_land_type_display }}</span>
+                    </div>
+                    <h5 class="card-title fw-bold text-dark h6 mb-1">
+                        <a href="{% url 'parcel_detail' slug=parcel.slug %}" class="text-decoration-none text-dark">
+                            Survey {{ parcel.survey_number }}
+                        </a>
+                    </h5>
+                    <div class="small text-muted mb-2">Deed: {{ parcel.title_deed_number }}</div>
+                    
+                    <div class="small mb-1">
+                        <i class="bi bi-person text-secondary me-1"></i> {{ parcel.owner.full_name }}
+                    </div>
+                    <div class="small mb-2">
+                        <i class="bi bi-geo-alt text-secondary me-1"></i> {{ parcel.village }}, {{ parcel.district }}
+                    </div>
+                    <div class="small fw-semibold text-success pt-2 border-top">
+                        Valuation: ₹{{ parcel.market_valuation|floatformat:0 }}
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 pt-0 pb-3">
+                    <a href="{% url 'parcel_detail' slug=parcel.slug %}" class="btn btn-sm btn-outline-primary w-100">
+                        View Dossier &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-4 text-muted">
+            No verified parcels available yet.
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Active Jurisdictions & Call to Action -->
+<div class="row g-4 align-items-center">
+    <div class="col-md-7">
+        <div class="card border p-4 shadow-sm h-100">
+            <h5 class="fw-bold text-dark mb-2">Active Revenue Districts</h5>
+            <p class="small text-muted mb-3">Jump directly to cadastral holdings by district administrative boundary:</p>
+            <div class="d-flex flex-wrap gap-2">
+                {% for d in all_districts %}
+                    <a href="{% url 'parcels_by_district' district=d %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-geo-alt text-secondary me-1"></i> {{ d }}
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card border-0 p-4 text-white shadow-sm h-100" style="background: var(--earth-forest); border-radius: 10px;">
+            <h5 class="fw-bold mb-2">Cadastral Revenue Portal</h5>
+            <p class="small opacity-75 mb-4">
+                Are you an administrative officer or citizen looking to enroll and certify a cadastral land unit?
+            </p>
+            <div class="d-flex flex-column gap-2">
+                <a href="{% url 'parcel_create' %}" class="btn btn-light fw-semibold">
+                    <i class="bi bi-plus-circle me-1 text-success"></i> Digitize New Parcel
+                </a>
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-light">
+                    <i class="bi bi-graph-up me-1"></i> Open Analytics Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

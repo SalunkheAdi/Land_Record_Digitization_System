@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block title %}Record Validation Audit - {{ parcel.survey_number }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'parcel_list' %}">Parcels</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'parcel_detail' slug=parcel.slug %}">{{ parcel.survey_number }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Cadastral Audit</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Automated Cadastral Heuristic Assessment -->
+    <div class="col-lg-5">
+        <div class="card shadow-sm border-0 border-stat-score">
+            <div class="card-header bg-white py-3">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-shield-check me-1" style="color: var(--earth-forest);"></i> Automated Cadastral Pre-Audit Check
+                </h5>
+                <div class="small text-muted">Evaluation for Cadastral Survey {{ parcel.survey_number }}</div>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center p-3 rounded mb-3" style="background-color: var(--earth-card-muted);">
+                    <div>
+                        <div class="small text-muted text-uppercase fw-bold">Computed Compliance Score</div>
+                        <div class="display-6 fw-bold {% if ai_evaluation.compliance_score >= 80 %}text-success{% elif ai_evaluation.compliance_score >= 50 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ ai_evaluation.compliance_score }} / 100
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <div class="small text-muted text-uppercase fw-bold">Assessed Risk</div>
+                        <span class="badge {% if ai_evaluation.risk_level == 'LOW' %}badge-low-risk{% elif ai_evaluation.risk_level == 'MEDIUM' %}badge-medium-risk{% else %}badge-high-risk{% endif %} fs-6">
+                            {{ ai_evaluation.risk_level }}
+                        </span>
+                    </div>
+                </div>
+
+                <h6 class="fw-bold mb-2">Automated Checkpoints:</h6>
+                <ul class="list-group list-group-flush mb-3 border rounded">
+                    {% for check_name, check_data in ai_evaluation.checks.items %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center py-2">
+                        <span class="small">
+                            {% if check_data.passed %}<i class="bi bi-check-circle-fill text-success me-1"></i>{% else %}<i class="bi bi-x-circle-fill text-danger me-1"></i>{% endif %}
+                            <strong>{{ check_name|upper }}</strong>: {{ check_data.details }}
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+
+                {% if ai_evaluation.anomalies %}
+                <div class="alert alert-danger py-2">
+                    <strong class="small d-block mb-1"><i class="bi bi-exclamation-triangle"></i> Discrepancies Flagged by Engine:</strong>
+                    <ul class="small mb-0 ps-3">
+                        {% for anomaly in ai_evaluation.anomalies %}
+                            <li>{{ anomaly }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% else %}
+                <div class="alert alert-success py-2 small mb-0">
+                    <i class="bi bi-shield-check me-1"></i> <strong>Zero Perimeter Anomalies:</strong> Meets cadastral and circle rate parameters.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Official Officer Inspection Form -->
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="bi bi-clipboard2-check me-1" style="color: var(--earth-forest);"></i> Official Cadastral Audit Submission
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for err in form.non_field_errors %}<div>{{ err }}</div>{% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Subject Parcel</label>
+                            {{ form.parcel }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Audit Reference Code *</label>
+                            {{ form.inspection_code }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Cadastral Officer Name *</label>
+                            {{ form.inspector_name }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Audit Date *</label>
+                            {{ form.inspection_date }}
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-semibold">Fiscal Year *</label>
+                            {{ form.fiscal_year }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Compliance Score (0-100) *</label>
+                            {{ form.compliance_score }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Assessed Risk Category *</label>
+                            {{ form.risk_level }}
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold mb-2" style="color: var(--earth-forest);">Verification Checkpoints</h6>
+                    <div class="row g-2 mb-3 p-3 rounded border" style="background-color: var(--earth-card-muted);">
+                        <div class="col-sm-6">
+                            <div class="form-check">
+                                {{ form.title_clarity_passed }}
+                                <label class="form-check-label ms-1" for="{{ form.title_clarity_passed.id_for_label }}">
+                                    Title deed clarity verified
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-check">
+                                {{ form.boundary_verification_passed }}
+                                <label class="form-check-label ms-1" for="{{ form.boundary_verification_passed.id_for_label }}">
+                                    Centroid GIS coordinates validated
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-check">
+                                {{ form.zoning_compliance_passed }}
+                                <label class="form-check-label ms-1" for="{{ form.zoning_compliance_passed.id_for_label }}">
+                                    Zoning classification compliant
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="form-check">
+                                {{ form.encroachment_detected }}
+                                <label class="form-check-label text-danger ms-1" for="{{ form.encroachment_detected.id_for_label }}">
+                                    Active encroachment detected
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Detailed Audit Observations & Notes *</label>
+                        {{ form.ai_anomaly_notes }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Final Cadastral Determination *</label>
+                        {{ form.final_determination }}
+                        <div class="form-text small">
+                            Submitting "Approved" will seal parcel status as <strong>Verified</strong>. "Rejected" will mark as <strong>Disputed</strong>.
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 border-top pt-3">
+                        <a href="{% url 'parcel_detail' slug=parcel.slug %}" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-shield-check me-1"></i> Finalize & Seal Audit Record
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
