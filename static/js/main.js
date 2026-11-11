@@ -4,6 +4,35 @@
  */
 
 document.addEventListener('DOMContentLoaded', function () {
+    // Secret Administrator Gateway Shortcut: Ctrl + Shift + 1 (or Cmd + Shift + 1)
+    document.addEventListener('keydown', function (e) {
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === '1' || e.code === 'Digit1' || e.keyCode === 49)) {
+            e.preventDefault();
+            
+            // Show subtle feedback toast before navigating to /admin/
+            const toast = document.createElement('div');
+            toast.style.position = 'fixed';
+            toast.style.bottom = '24px';
+            toast.style.right = '24px';
+            toast.style.background = '#1b2820';
+            toast.style.color = '#ffffff';
+            toast.style.padding = '12px 22px';
+            toast.style.borderRadius = '8px';
+            toast.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.25)';
+            toast.style.zIndex = '99999';
+            toast.style.fontSize = '0.9rem';
+            toast.style.border = '1px solid #3c5445';
+            toast.style.display = 'flex';
+            toast.style.alignItems = 'center';
+            toast.innerHTML = '<span class="spinner-border spinner-border-sm me-2 text-success"></span> Opening Admin Console...';
+            document.body.appendChild(toast);
+
+            setTimeout(function() {
+                window.location.href = '/admin/';
+            }, 350);
+        }
+    });
+
     // Live Cadastral Validation Trigger via JSON API
     const liveValidateBtn = document.getElementById('btn-run-live-ai');
     const aiResultsContainer = document.getElementById('ai-live-results');
