@@ -12,6 +12,7 @@ files_to_include = [
     "build_files.sh",
     "PROJECT_REPORT.md",
     "README.md",
+    "SRS_Intelligent_Land_Record_Digitization_System_CA2.pdf",
     "SRS_Intelligent_Land_Record_Digitization_System_INT253.pdf",
     "build_srs_report.py",
     "INT253_Assignment_Report_Intelligent_Land_Record_System.pdf",

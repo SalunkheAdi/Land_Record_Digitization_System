@@ -60,8 +60,8 @@ p1.draw_rect(fitz.Rect(36, 250, 559, 276), color=None, fill=COLOR_FOREST)
 p1.insert_text(fitz.Point(48, 268), "CANDIDATE & SUBMISSION METADATA", fontsize=9.5, fontname="hebo", color=(1, 1, 1))
 
 items = [
-    ("Student Name:", "Aditya Salunkhe", "Course Code & Name:", "INT253 - Web Dev in Python Using Django"),
-    ("Registration / Roll No:", "12215890 / RK22PDA01", "Academic Task:", "Project / Capstone Web Application"),
+    ("Team Members:", "Aditya, Sandeep, Avinash, Siddhartha", "Course Code & Name:", "INT253 - Web Dev in Python Using Django"),
+    ("Registration Nos:", "12301138, 12307204, 12309953, 12311702", "Academic Task:", "Project / Capstone Web Application"),
     ("Framework & Version:", "Django 6.0.7 / Python 3.13.1", "Max Marks:", "30 Marks (Academic Component)"),
     ("Database Engine:", "SQLite 3 (Relational / Normalized)", "Hosting & Deployment:", "Vercel Serverless Ready (WhiteNoise)")
 ]
@@ -698,7 +698,7 @@ p9.insert_textbox(fitz.Rect(50, 675, 545, 740),
     "any component of the submitted codebase during the oral viva examination.",
     fontsize=8.5, fontname="helv", color=COLOR_TEXT)
 
-p9.insert_text(fitz.Point(50, 765), "Student Signature: Aditya Salunkhe", fontsize=9, fontname="hebo", color=COLOR_DARK)
+p9.insert_text(fitz.Point(50, 765), "Team Signatures: Aditya, Sandeep, Avinash, Siddhartha", fontsize=8.5, fontname="hebo", color=COLOR_DARK)
 p9.insert_text(fitz.Point(50, 780), "Date of Submission: 16-11-2026", fontsize=8.5, fontname="helv", color=COLOR_MUTED)
 
 p9.insert_text(fitz.Point(370, 765), "Evaluator Signature: __________________", fontsize=9, fontname="hebo", color=COLOR_DARK)

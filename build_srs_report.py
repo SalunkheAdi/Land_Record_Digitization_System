@@ -33,8 +33,8 @@ CONTENT_W = MARGIN_R - MARGIN_L
 
 def add_header_footer(page, page_num):
     # Running Header
-    header_str = "INT253 | Spring 2026 | Salunkhe Aditya Sudhakar ,Nirdesh Yadav, Vaishnavi"
-    page.insert_text(fitz.Point(MARGIN_L, 34), header_str, fontsize=8, fontname="helv", color=COLOR_TEXT_MUTED)
+    header_str = "INT253 | Spring 2026 | Salunkhe Aditya Sudhakar, Sandeep Kumar, Avinash Karthik, Siddhartha"
+    page.insert_text(fitz.Point(MARGIN_L, 34), header_str, fontsize=7.8, fontname="helv", color=COLOR_TEXT_MUTED)
     
     # Running Footer
     page.draw_rect(fitz.Rect(MARGIN_L, 804, MARGIN_R, 804.6), color=None, fill=COLOR_LINE_GRAY)
@@ -140,9 +140,9 @@ y_meta = 320
 p1.insert_text(fitz.Point(MARGIN_L, y_meta), "Course Code: INT253", fontsize=13, fontname="hebo", color=COLOR_TEXT_MAIN)
 p1.insert_text(fitz.Point(MARGIN_L, y_meta + 34), "Course Name: Web Development in Python Using Django", fontsize=13, fontname="hebo", color=COLOR_TEXT_MAIN)
 p1.insert_text(fitz.Point(MARGIN_L, y_meta + 68), "Student Names: Salunkhe Aditya Sudhakar,", fontsize=13, fontname="hebo", color=COLOR_TEXT_MAIN)
-p1.insert_text(fitz.Point(MARGIN_L, y_meta + 94), "Nirdesh Yadav, Vaishnavi", fontsize=13, fontname="hebo", color=COLOR_TEXT_MAIN)
-p1.insert_text(fitz.Point(MARGIN_L, y_meta + 128), "Registration Numbers: 12301138, 12319130,", fontsize=13, fontname="hebo", color=COLOR_TEXT_MAIN)
-p1.insert_text(fitz.Point(MARGIN_L, y_meta + 154), "12303452", fontsize=13, fontname="hebo", color=COLOR_TEXT_MAIN)
+p1.insert_text(fitz.Point(MARGIN_L, y_meta + 94), "Sandeep Kumar, Avinash Karthik, Siddhartha", fontsize=12, fontname="hebo", color=COLOR_TEXT_MAIN)
+p1.insert_text(fitz.Point(MARGIN_L, y_meta + 128), "Registration Numbers: 12301138, 12307204,", fontsize=13, fontname="hebo", color=COLOR_TEXT_MAIN)
+p1.insert_text(fitz.Point(MARGIN_L, y_meta + 154), "12309953, 12311702", fontsize=13, fontname="hebo", color=COLOR_TEXT_MAIN)
 
 p1.insert_text(fitz.Point(MARGIN_L, y_meta + 196), "Github Link:", fontsize=13, fontname="hebo", color=COLOR_TEXT_MAIN)
 p1.insert_text(fitz.Point(MARGIN_L + 95, y_meta + 196), "https://github.com/SalunkheAdi/Land_Record_Digitization_System", fontsize=10.5, fontname="helv", color=COLOR_LINK_BLUE)
@@ -243,7 +243,7 @@ y = draw_subheading(p3, y + 10, "1.1 Purpose")
 purpose_text = (
     "The purpose of this SRS is to define the complete requirements for BhumiSetu — a secure, web-based platform built "
     "using the Django framework (Python 3.13) with an SQLite relational database. This document is intended for the "
-    "development team (Salunkhe Aditya Sudhakar, Nirdesh Yadav, Vaishnavi), course evaluators, and academic stakeholders "
+    "development team (Salunkhe Aditya Sudhakar, Sandeep Kumar, Avinash Karthik, Siddhartha), course evaluators, and academic stakeholders "
     "involved in the project evaluation."
 )
 y = draw_paragraph(p3, y + 2, purpose_text)
@@ -836,12 +836,13 @@ decl_text = (
 tb_decl = fitz.Rect(MARGIN_L + 10, y_box + 34, MARGIN_R - 10, y_box + 90)
 p16.insert_textbox(tb_decl, decl_text, fontsize=8.2, fontname="helv", color=COLOR_TEXT_MAIN, lineheight=1.2)
 
-p16.insert_text(fitz.Point(MARGIN_L + 10, y_box + 115), "Team Members:", fontsize=8.5, fontname="hebo", color=COLOR_TEXT_MAIN)
-p16.insert_text(fitz.Point(MARGIN_L + 10, y_box + 132), "1. Salunkhe Aditya Sudhakar (Reg: 12301138)", fontsize=8.2, fontname="helv", color=COLOR_TEXT_MAIN)
-p16.insert_text(fitz.Point(MARGIN_L + 10, y_box + 148), "2. Nirdesh Yadav (Reg: 12319130)", fontsize=8.2, fontname="helv", color=COLOR_TEXT_MAIN)
-p16.insert_text(fitz.Point(MARGIN_L + 10, y_box + 164), "3. Vaishnavi (Reg: 12303452)", fontsize=8.2, fontname="helv", color=COLOR_TEXT_MAIN)
+p16.insert_text(fitz.Point(MARGIN_L + 10, y_box + 112), "Team Members:", fontsize=8.5, fontname="hebo", color=COLOR_TEXT_MAIN)
+p16.insert_text(fitz.Point(MARGIN_L + 10, y_box + 128), "1. Salunkhe Aditya Sudhakar (Reg: 12301138)", fontsize=8.0, fontname="helv", color=COLOR_TEXT_MAIN)
+p16.insert_text(fitz.Point(MARGIN_L + 10, y_box + 144), "2. Sandeep Kumar (Reg: 12307204)", fontsize=8.0, fontname="helv", color=COLOR_TEXT_MAIN)
+p16.insert_text(fitz.Point(MARGIN_L + 10, y_box + 160), "3. Avinash Karthik (Reg: 12309953)", fontsize=8.0, fontname="helv", color=COLOR_TEXT_MAIN)
+p16.insert_text(fitz.Point(MARGIN_L + 10, y_box + 176), "4. Siddhartha (Reg: 12311702)", fontsize=8.0, fontname="helv", color=COLOR_TEXT_MAIN)
 
-p16.insert_text(fitz.Point(MARGIN_L + 10, y_box + 195), "Date: 16-11-2026", fontsize=8.2, fontname="helv", color=COLOR_TEXT_MUTED)
+p16.insert_text(fitz.Point(MARGIN_L + 10, y_box + 200), "Date: 16-11-2026", fontsize=8.2, fontname="helv", color=COLOR_TEXT_MUTED)
 
 p16.insert_text(fitz.Point(MARGIN_L + 280, y_box + 115), "Evaluator Sign-Off:", fontsize=8.5, fontname="hebo", color=COLOR_TEXT_MAIN)
 p16.insert_text(fitz.Point(MARGIN_L + 280, y_box + 138), "Examiner Signature: _______________________", fontsize=8.2, fontname="helv", color=COLOR_TEXT_MAIN)
@@ -849,6 +850,15 @@ p16.insert_text(fitz.Point(MARGIN_L + 280, y_box + 162), "Marks Awarded (CA2): _
 p16.insert_text(fitz.Point(MARGIN_L + 280, y_box + 195), "Evaluation Remarks: Verified and Accepted", fontsize=8.2, fontname="helv", color=COLOR_TEXT_MUTED)
 
 # Save with stream deflation and garbage cleanup
-doc.save(pdf_path, deflate=True, garbage=4, clean=True)
+primary_pdf = "SRS_Intelligent_Land_Record_Digitization_System_CA2.pdf"
+doc.save(primary_pdf, deflate=True, garbage=4, clean=True)
+print(f"16-Page SRS Report successfully generated: {primary_pdf}")
+
+# Also update the INT253 target if not locked by an external reader
+try:
+    alt_pdf = "SRS_Intelligent_Land_Record_Digitization_System_INT253.pdf"
+    doc.save(alt_pdf, deflate=True, garbage=4, clean=True)
+    print(f"Also updated: {alt_pdf}")
+except Exception as e:
+    print(f"Note: {alt_pdf} is currently open in a PDF viewer. Generated latest version at {primary_pdf}")
 doc.close()
-print(f"16-Page SRS Report successfully generated: {pdf_path}")
