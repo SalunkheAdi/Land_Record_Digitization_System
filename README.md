@@ -4,7 +4,7 @@
 **Framework:** Django 6.0.7 / Python 3.13.1  
 **Database:** SQLite 3  
 
-- 🌐 **Live Vercel Deployment:** [https://landrecorddigitizationsystem-o5u4qxbui-salunkheadis-projects.vercel.app/](https://landrecorddigitizationsystem-o5u4qxbui-salunkheadis-projects.vercel.app/)
+- 🌐 **Live Vercel Deployment:** [https://landrecorddigitizationsystem.vercel.app/](https://landrecorddigitizationsystem.vercel.app/)
 - 🎥 **Video Demonstration:** [Google Drive Video Demo](https://drive.google.com/file/d/1RkXaEBQbhKwtRbgztpdXQBLDwCAaQq6S/view?usp=drive_link)
 - 💻 **GitHub Repository:** [https://github.com/SalunkheAdi/Land_Record_Digitization_System](https://github.com/SalunkheAdi/Land_Record_Digitization_System)  
 

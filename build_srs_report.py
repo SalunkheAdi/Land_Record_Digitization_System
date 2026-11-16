@@ -148,7 +148,7 @@ p1.insert_text(fitz.Point(MARGIN_L, y_meta + 192), "Github Link:", fontsize=12, 
 p1.insert_text(fitz.Point(MARGIN_L + 110, y_meta + 192), "https://github.com/SalunkheAdi/Land_Record_Digitization_System", fontsize=8.8, fontname="helv", color=COLOR_LINK_BLUE)
 
 p1.insert_text(fitz.Point(MARGIN_L, y_meta + 224), "Deployed Link:", fontsize=12, fontname="hebo", color=COLOR_TEXT_MAIN)
-p1.insert_text(fitz.Point(MARGIN_L + 110, y_meta + 224), "https://landrecorddigitizationsystem-o5u4qxbui-salunkheadis-projects.vercel.app/", fontsize=7.8, fontname="helv", color=COLOR_LINK_BLUE)
+p1.insert_text(fitz.Point(MARGIN_L + 110, y_meta + 224), "https://landrecorddigitizationsystem.vercel.app/", fontsize=9.0, fontname="helv", color=COLOR_LINK_BLUE)
 
 p1.insert_text(fitz.Point(MARGIN_L, y_meta + 256), "Video Link :", fontsize=12, fontname="hebo", color=COLOR_TEXT_MAIN)
 p1.insert_text(fitz.Point(MARGIN_L + 110, y_meta + 256), "https://drive.google.com/file/d/1RkXaEBQbhKwtRbgztpdXQBLDwCAaQq6S/view?usp=drive_link", fontsize=7.8, fontname="helv", color=COLOR_LINK_BLUE)
@@ -742,7 +742,7 @@ dep_headers = ["Detail", "Information"]
 dep_rows = [
     ("Deployment Platform", "Vercel Serverless Platform"),
     ("Deployment Entry Point", "api/index.py (WSGI Application Handler)"),
-    ("Production URL", "https://landrecorddigitizationsystem-o5u4qxbui-salunkheadis-projects.vercel.app/"),
+    ("Production URL", "https://landrecorddigitizationsystem.vercel.app/"),
     ("Video Demonstration", "https://drive.google.com/file/d/1RkXaEBQbhKwtRbgztpdXQBLDwCAaQq6S/view?usp=drive_link"),
     ("Static Files Handler", "WhiteNoise compressed static asset pipeline"),
     ("Build Script", "build_files.sh (`python -m pip install -r requirements.txt && python manage.py collectstatic`)"),
