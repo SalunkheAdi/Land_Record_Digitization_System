@@ -704,7 +704,7 @@ p9.insert_text(fitz.Point(50, 780), "Date of Submission: 16-11-2026", fontsize=8
 p9.insert_text(fitz.Point(370, 765), "Evaluator Signature: __________________", fontsize=9, fontname="hebo", color=COLOR_DARK)
 p9.insert_text(fitz.Point(370, 780), "Marks Awarded: ________ / 30 Marks", fontsize=8.5, fontname="hebo", color=COLOR_FOREST)
 
-# Save Document
-doc.save(pdf_path)
+# Save Document with high-efficiency deflation and stream optimization
+doc.save(pdf_path, deflate=True, garbage=4, clean=True)
 doc.close()
 print(f"PDF Report generated successfully: {pdf_path} (Total Pages: {TOTAL_PAGES})")
