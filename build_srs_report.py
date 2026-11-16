@@ -144,11 +144,14 @@ p1.insert_text(fitz.Point(MARGIN_L, y_meta + 94), "Sandeep Kumar, Avinash Karthi
 p1.insert_text(fitz.Point(MARGIN_L, y_meta + 128), "Registration Numbers: 12301138, 12307204,", fontsize=13, fontname="hebo", color=COLOR_TEXT_MAIN)
 p1.insert_text(fitz.Point(MARGIN_L, y_meta + 154), "12309953, 12311702", fontsize=13, fontname="hebo", color=COLOR_TEXT_MAIN)
 
-p1.insert_text(fitz.Point(MARGIN_L, y_meta + 196), "Github Link:", fontsize=13, fontname="hebo", color=COLOR_TEXT_MAIN)
-p1.insert_text(fitz.Point(MARGIN_L + 95, y_meta + 196), "https://github.com/SalunkheAdi/Land_Record_Digitization_System", fontsize=10.5, fontname="helv", color=COLOR_LINK_BLUE)
+p1.insert_text(fitz.Point(MARGIN_L, y_meta + 192), "Github Link:", fontsize=12, fontname="hebo", color=COLOR_TEXT_MAIN)
+p1.insert_text(fitz.Point(MARGIN_L + 110, y_meta + 192), "https://github.com/SalunkheAdi/Land_Record_Digitization_System", fontsize=8.8, fontname="helv", color=COLOR_LINK_BLUE)
 
-p1.insert_text(fitz.Point(MARGIN_L, y_meta + 234), "Video Link :", fontsize=13, fontname="hebo", color=COLOR_TEXT_MAIN)
-p1.insert_text(fitz.Point(MARGIN_L + 95, y_meta + 234), "https://drive.google.com/drive/folders/1w3scjFl324h-0laI5xOuNPGFQfilJUyB?usp=sharing", fontsize=9.2, fontname="helv", color=COLOR_LINK_BLUE)
+p1.insert_text(fitz.Point(MARGIN_L, y_meta + 224), "Deployed Link:", fontsize=12, fontname="hebo", color=COLOR_TEXT_MAIN)
+p1.insert_text(fitz.Point(MARGIN_L + 110, y_meta + 224), "https://landrecorddigitizationsystem-o5u4qxbui-salunkheadis-projects.vercel.app/", fontsize=7.8, fontname="helv", color=COLOR_LINK_BLUE)
+
+p1.insert_text(fitz.Point(MARGIN_L, y_meta + 256), "Video Link :", fontsize=12, fontname="hebo", color=COLOR_TEXT_MAIN)
+p1.insert_text(fitz.Point(MARGIN_L + 110, y_meta + 256), "https://drive.google.com/file/d/1RkXaEBQbhKwtRbgztpdXQBLDwCAaQq6S/view?usp=drive_link", fontsize=7.8, fontname="helv", color=COLOR_LINK_BLUE)
 
 # Bottom Assessment Block
 p1.insert_text(fitz.Point(PAGE_WIDTH / 2 - 50, 715), "Prepared for", fontsize=12, fontname="helv", color=COLOR_TEXT_MUTED)
@@ -739,7 +742,8 @@ dep_headers = ["Detail", "Information"]
 dep_rows = [
     ("Deployment Platform", "Vercel Serverless Platform"),
     ("Deployment Entry Point", "api/index.py (WSGI Application Handler)"),
-    ("Production URL", "https://land-record-digitization-system.vercel.app (or custom university domain)"),
+    ("Production URL", "https://landrecorddigitizationsystem-o5u4qxbui-salunkheadis-projects.vercel.app/"),
+    ("Video Demonstration", "https://drive.google.com/file/d/1RkXaEBQbhKwtRbgztpdXQBLDwCAaQq6S/view?usp=drive_link"),
     ("Static Files Handler", "WhiteNoise compressed static asset pipeline"),
     ("Build Script", "build_files.sh (`python -m pip install -r requirements.txt && python manage.py collectstatic`)"),
     ("Routing Engine", "Declarative route redirection matching all paths to `/api/index.py`"),

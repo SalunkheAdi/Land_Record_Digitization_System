@@ -598,14 +598,14 @@ p8.insert_textbox(fitz.Rect(36, 408, 559, 455),
 
 p8.insert_text(fitz.Point(36, 465), "6.3 Production Deployment on Vercel Serverless Architecture", fontsize=10, fontname="hebo", color=COLOR_FOREST)
 vercel_text = (
-    "The project is 100% deployment-ready on Vercel serverless cloud infrastructure:\n\n"
+    "The project is 100% deployment-ready and live on Vercel serverless cloud infrastructure:\n"
+    "• Production Deployment URL: https://landrecorddigitizationsystem-o5u4qxbui-salunkheadis-projects.vercel.app/\n"
+    "• Video Demonstration URL: https://drive.google.com/file/d/1RkXaEBQbhKwtRbgztpdXQBLDwCAaQq6S/view?usp=drive_link\n"
     "• Serverless WSGI Bridge (api/index.py): Connects Vercel's @vercel/python runtime with Django's WSGI application.\n"
     "• Zero-Crash SQLite Strategy: Vercel serverless filesystems are read-only except /tmp. config/settings.py automatically "
-    "copies the pre-seeded db.sqlite3 into /tmp/db.sqlite3 whenever running in Vercel (os.environ.get('VERCEL')), enabling "
-    "full read and write operations without permission crashes.\n"
-    "• WhiteNoise Static Compression: WhiteNoiseMiddleware compresses all 132 static assets into staticfiles/ with gzip/brotli.\n"
-    "• Cloud PostgreSQL Compatibility: Supporting dj-database-url, setting DATABASE_URL connects seamlessly to Neon / Supabase.\n"
-    "• GitHub Integration: Repository live at https://github.com/SalunkheAdi/Land_Record_Digitization_System with auto-CI/CD."
+    "copies the pre-seeded db.sqlite3 into /tmp/db.sqlite3 whenever running in Vercel (os.environ.get('VERCEL')).\n"
+    "• WhiteNoise Static Compression: Compresses all 132 static assets into staticfiles/ with gzip/brotli caching.\n"
+    "• GitHub Integration: Repository live at https://github.com/SalunkheAdi/Land_Record_Digitization_System."
 )
 p8.insert_textbox(fitz.Rect(36, 475, 559, 620), vercel_text, fontsize=8.4, fontname="helv", color=COLOR_TEXT)
 

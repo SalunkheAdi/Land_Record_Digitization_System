@@ -1,8 +1,12 @@
 # Intelligent Land Record Digitization and Validation System
 **Course:** INT253 - Web Development in Python Using Django  
-**Academic Task:** Project (Web Application) — 30 Marks  
+**Academic Task:** Project (Web Application) — 30 Marks / Continuous Assessment 2  
 **Framework:** Django 6.0.7 / Python 3.13.1  
 **Database:** SQLite 3  
+
+- 🌐 **Live Vercel Deployment:** [https://landrecorddigitizationsystem-o5u4qxbui-salunkheadis-projects.vercel.app/](https://landrecorddigitizationsystem-o5u4qxbui-salunkheadis-projects.vercel.app/)
+- 🎥 **Video Demonstration:** [Google Drive Video Demo](https://drive.google.com/file/d/1RkXaEBQbhKwtRbgztpdXQBLDwCAaQq6S/view?usp=drive_link)
+- 💻 **GitHub Repository:** [https://github.com/SalunkheAdi/Land_Record_Digitization_System](https://github.com/SalunkheAdi/Land_Record_Digitization_System)  
 
 ---
 
