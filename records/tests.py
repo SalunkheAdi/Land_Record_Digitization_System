@@ -1,5 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
+from django.contrib.auth.models import User
 from decimal import Decimal
 from .models import LandOwner, LandParcel
 
@@ -12,6 +13,12 @@ class CadastralRecordsTests(TestCase):
 
     def setUp(self):
         self.client = Client()
+        self.user = User.objects.create_user(
+            username="testsurveyor",
+            email="surveyor@test.gov.in",
+            password="securepassword123"
+        )
+        self.client.force_login(self.user)
         self.owner = LandOwner.objects.create(
             first_name="Vikram",
             last_name="Aditya",
@@ -132,3 +139,49 @@ class CadastralRecordsTests(TestCase):
         response = self.client.get('/parcel/non-existent-parcel-slug-9999/')
         self.assertEqual(response.status_code, 404)
         self.assertTemplateUsed(response, '404.html')
+
+    def test_08_unauthenticated_access_redirects_to_login(self):
+        """Test unauthenticated visitors are redirected to login when accessing protected views."""
+        anon_client = Client()
+        protected_urls = [
+            reverse('dashboard'),
+            reverse('parcel_list'),
+            reverse('parcel_create'),
+            reverse('owner_list')
+        ]
+        for url in protected_urls:
+            res = anon_client.get(url)
+            self.assertEqual(res.status_code, 302)
+            self.assertIn(reverse('login'), res.url)
+
+    def test_09_user_signup_view(self):
+        """Test registration endpoint creates user and logs in."""
+        anon_client = Client()
+        signup_data = {
+            'first_name': 'Ravi',
+            'last_name': 'Varma',
+            'username': 'ravivarma',
+            'email': 'ravi@cadastre.in',
+            'password': 'password123',
+            'confirm_password': 'password123'
+        }
+        res = anon_client.post(reverse('signup'), signup_data)
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(res.url, reverse('dashboard'))
+        self.assertTrue(User.objects.filter(username='ravivarma').exists())
+
+    def test_10_user_login_and_logout_flow(self):
+        """Test user login authentication and logout flow."""
+        anon_client = Client()
+        login_data = {
+            'username': 'testsurveyor',
+            'password': 'securepassword123'
+        }
+        res = anon_client.post(reverse('login'), login_data)
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(res.url, reverse('dashboard'))
+
+        # Now test logout
+        logout_res = anon_client.get(reverse('logout'))
+        self.assertEqual(logout_res.status_code, 302)
+        self.assertEqual(logout_res.url, reverse('home'))

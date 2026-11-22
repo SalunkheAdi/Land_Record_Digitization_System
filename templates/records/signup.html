@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign Up / Register | GeoCadastre Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center py-5">
+    <div class="col-md-9 col-lg-6 col-xl-5">
+        
+        <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+            <!-- Header Banner -->
+            <div class="p-4 text-center" style="background: linear-gradient(135deg, #1B2820 0%, #2D4C3E 100%); color: #F7F6F2;">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 56px; height: 56px; background-color: rgba(247, 246, 242, 0.12); border: 1px solid rgba(247, 246, 242, 0.2);">
+                    <i class="bi bi-person-badge-fill fs-3 text-warning"></i>
+                </div>
+                <h4 class="fw-bold mb-1">Create User Account</h4>
+                <p class="small text-muted-light mb-0" style="color: #D2DBCF;">Register to access digitized cadastral parcels and audit systems</p>
+            </div>
+
+            <div class="card-body p-4 bg-white">
+                <!-- Registration Form -->
+                <form method="post" action="{% url 'signup' %}">
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger py-2 small mb-3">
+                            {% for error in form.non_field_errors %}
+                                <div><i class="bi bi-exclamation-triangle-fill me-1"></i> {{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- First Name and Last Name Row -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-sm-6">
+                            <label for="{{ form.first_name.id_for_label }}" class="form-label fw-semibold small text-secondary">
+                                First Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.first_name.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="{{ form.last_name.id_for_label }}" class="form-label fw-semibold small text-secondary">
+                                Last Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.last_name.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Username -->
+                    <div class="mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold small text-secondary">
+                            <i class="bi bi-person-fill me-1"></i> Username <span class="text-danger">*</span>
+                        </label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors|first }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Email Address -->
+                    <div class="mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label fw-semibold small text-secondary">
+                            <i class="bi bi-envelope-fill me-1"></i> Email Address <span class="text-danger">*</span>
+                        </label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors|first }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Password Row -->
+                    <div class="row g-2 mb-4">
+                        <div class="col-sm-6">
+                            <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold small text-secondary">
+                                <i class="bi bi-lock-fill me-1"></i> Password <span class="text-danger">*</span>
+                            </label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                                <div class="text-danger small mt-1">{{ form.password.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-6">
+                            <label for="{{ form.confirm_password.id_for_label }}" class="form-label fw-semibold small text-secondary">
+                                <i class="bi bi-shield-check me-1"></i> Confirm <span class="text-danger">*</span>
+                            </label>
+                            {{ form.confirm_password }}
+                            {% if form.confirm_password.errors %}
+                                <div class="text-danger small mt-1">{{ form.confirm_password.errors|first }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                        <i class="bi bi-check-circle-fill"></i> Complete Registration
+                    </button>
+                </form>
+
+                <!-- Footer Switcher -->
+                <div class="text-center mt-4 pt-3 border-top">
+                    <p class="small text-muted mb-0">
+                        Already have an account? 
+                        <a href="{% url 'login' %}" class="fw-semibold text-primary text-decoration-none">Sign In here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Home Link -->
+        <div class="text-center mt-3">
+            <a href="{% url 'home' %}" class="text-muted small text-decoration-none">
+                <i class="bi bi-arrow-left me-1"></i> Return to Public Home Page
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

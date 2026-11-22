@@ -1,5 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
+from django.contrib.auth.models import User
 from decimal import Decimal
 from records.models import LandOwner, LandParcel
 from validation.models import ValidationAudit
@@ -13,6 +14,11 @@ class ValidationAppTests(TestCase):
 
     def setUp(self):
         self.client = Client()
+        self.user = User.objects.create_user(
+            username="valinspector",
+            password="testpassword123"
+        )
+        self.client.force_login(self.user)
         self.owner = LandOwner.objects.create(
             first_name="Anita",
             last_name="Roy",

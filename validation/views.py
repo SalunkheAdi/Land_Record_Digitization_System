@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Avg, Count
 from records.models import LandParcel
@@ -9,9 +10,11 @@ from .services import IntelligentValidationEngine
 import uuid
 
 
+@login_required
 def validation_list_view(request):
     """
     List view for all cadastral validation audits and risk assessments.
+    Requires user authentication.
     """
     audits = ValidationAudit.objects.select_related('parcel', 'parcel__owner').all()
     risk_filter = request.GET.get('risk', '').strip()
@@ -33,10 +36,12 @@ def validation_list_view(request):
     return render(request, 'validation/validation_list.html', context)
 
 
+@login_required
 def validation_create_view(request, parcel_id):
     """
     Create a new validation audit for a specific parcel using <int:parcel_id> converter.
     Integrates AI heuristic engine to pre-populate analysis and suggestions.
+    Requires user authentication.
     """
     parcel = get_object_or_404(LandParcel, id=parcel_id)
     ai_evaluation = IntelligentValidationEngine.evaluate_parcel(parcel)
@@ -116,9 +121,11 @@ def api_validate_parcel(request, slug):
     return JsonResponse(payload)
 
 
+@login_required
 def audit_fiscal_year_view(request, year):
     r"""
     Audit report filtered by fiscal year using re_path regex converter (r'^audit/fiscal-year/(?P<year>20\d{2})/$').
+    Requires user authentication.
     """
     year_int = int(year)
     audits = ValidationAudit.objects.filter(fiscal_year=year_int).select_related('parcel', 'parcel__owner')

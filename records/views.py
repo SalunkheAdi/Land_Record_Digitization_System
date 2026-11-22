@@ -1,8 +1,11 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.db.models import Q, Sum, Count, Avg
 from .models import LandParcel, LandOwner
-from .forms import LandParcelForm, LandOwnerForm
+from .forms import LandParcelForm, LandOwnerForm, UserRegistrationForm, UserLoginForm
 from validation.models import ValidationAudit
 
 
@@ -11,6 +14,7 @@ def home_view(request):
     Public Home Page: Welcome portal introducing the Cadastral Land Record
     Digitization and Validation System, featuring high-level metrics,
     quick title search, key system capabilities, and verified parcel spotlights.
+    Accessible to all users (both guests and authenticated).
     """
     total_parcels = LandParcel.objects.count()
     verified_parcels = LandParcel.objects.filter(digitization_status='VERIFIED').count()
@@ -36,10 +40,100 @@ def home_view(request):
     return render(request, 'records/home.html', context)
 
 
+def signup_view(request):
+    """
+    Public Sign Up / Registration View:
+    Enables new citizens, surveyors, or administrative officers to create an account.
+    Upon successful registration, automatically logs the user in and redirects to Dashboard.
+    """
+    if request.user.is_authenticated:
+        messages.info(request, "You are already signed in.")
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            display_name = user.first_name or user.username
+            messages.success(
+                request,
+                f"Welcome to GeoCadastre, {display_name}! Your account has been registered successfully."
+            )
+            return redirect('dashboard')
+        else:
+            messages.error(request, "Please correct the errors below to complete your registration.")
+    else:
+        form = UserRegistrationForm()
+
+    return render(request, 'records/signup.html', {'form': form})
+
+
+def login_view(request):
+    """
+    Public Sign In View:
+    Authenticates registered users via Username or Email with password.
+    Redirects to the requested 'next' URL or the main operational Dashboard.
+    """
+    if request.user.is_authenticated:
+        messages.info(request, "You are already signed in.")
+        return redirect('dashboard')
+
+    next_url = request.GET.get('next') or request.POST.get('next', '')
+
+    if request.method == 'POST':
+        form = UserLoginForm(request.POST)
+        if form.is_valid():
+            identifier = form.cleaned_data['username'].strip()
+            password = form.cleaned_data['password']
+
+            # Attempt authentication directly by username
+            user = authenticate(request, username=identifier, password=password)
+
+            # If not authenticated, check if the identifier was entered as an email address
+            if user is None:
+                try:
+                    matched_user = User.objects.get(email__iexact=identifier)
+                    user = authenticate(request, username=matched_user.username, password=password)
+                except (User.DoesNotExist, User.MultipleObjectsReturned):
+                    user = None
+
+            if user is not None:
+                login(request, user)
+                display_name = user.first_name or user.username
+                messages.success(request, f"Welcome back, {display_name}!")
+                if next_url and next_url.startswith('/'):
+                    return redirect(next_url)
+                return redirect('dashboard')
+            else:
+                messages.error(request, "Invalid username or password. Please verify your credentials.")
+    else:
+        form = UserLoginForm()
+
+    return render(request, 'records/login.html', {
+        'form': form,
+        'next': next_url
+    })
+
+
+def logout_view(request):
+    """
+    Sign Out View:
+    Safely terminates the authenticated session and redirects back to the public Home page.
+    """
+    if request.user.is_authenticated:
+        display_name = request.user.first_name or request.user.username
+        logout(request)
+        messages.info(request, f"Goodbye, {display_name}. You have been logged out safely.")
+    return redirect('home')
+
+
+@login_required
 def dashboard_view(request):
     """
     Landing dashboard displaying system analytics, cadastral metrics,
     digitization health scores, and recent parcels.
+    Requires user authentication.
     """
     total_parcels = LandParcel.objects.count()
     verified_parcels = LandParcel.objects.filter(digitization_status='VERIFIED').count()
@@ -76,10 +170,11 @@ def dashboard_view(request):
     return render(request, 'records/dashboard.html', context)
 
 
+@login_required
 def parcel_list_view(request):
     """
     List view with comprehensive multi-parameter search and filtering.
-    Handles GET requests.
+    Requires user authentication.
     """
     queryset = LandParcel.objects.select_related('owner').all()
     
@@ -126,10 +221,11 @@ def parcel_list_view(request):
     return render(request, 'records/parcel_list.html', context)
 
 
+@login_required
 def parcel_detail_view(request, slug):
     """
     Detail view using <slug:slug> converter.
-    Handles 404 errors via get_object_or_404.
+    Requires user authentication.
     """
     parcel = get_object_or_404(
         LandParcel.objects.select_related('owner').prefetch_related('validations'),
@@ -143,9 +239,11 @@ def parcel_detail_view(request, slug):
     return render(request, 'records/parcel_detail.html', context)
 
 
+@login_required
 def parcel_create_view(request):
     """
     Create a new Land Parcel. Handles GET and POST requests.
+    Requires user authentication.
     """
     if request.method == 'POST':
         form = LandParcelForm(request.POST)
@@ -167,6 +265,7 @@ def parcel_create_view(request):
     })
 
 
+@login_required
 def parcel_update_view(request, pk):
     """
     Update an existing Land Parcel using <int:pk> converter.
@@ -194,10 +293,11 @@ def parcel_update_view(request, pk):
     })
 
 
+@login_required
 def parcel_delete_view(request, pk):
     """
     Delete a Land Parcel using <int:pk> converter.
-    Requires POST request for safety.
+    Requires user authentication and POST request for safety.
     """
     parcel = get_object_or_404(LandParcel, pk=pk)
     if request.method == 'POST':
@@ -209,6 +309,7 @@ def parcel_delete_view(request, pk):
     return render(request, 'records/parcel_confirm_delete.html', {'parcel': parcel})
 
 
+@login_required
 def parcels_by_district_view(request, district):
     """
     Filtered view displaying parcels for a specific district using <str:district> converter.
@@ -222,6 +323,7 @@ def parcels_by_district_view(request, district):
     return render(request, 'records/district_parcels.html', context)
 
 
+@login_required
 def owner_list_view(request):
     """
     List of registered landowners with their parcel portfolios.
@@ -241,6 +343,7 @@ def owner_list_view(request):
     })
 
 
+@login_required
 def owner_create_view(request):
     """
     Register a new Land Owner. Handles GET and POST requests.

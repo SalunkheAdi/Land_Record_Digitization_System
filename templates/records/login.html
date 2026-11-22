@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign In | GeoCadastre Portal{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center py-5">
+    <div class="col-md-8 col-lg-5 col-xl-4">
+        
+        <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+            <!-- Header Banner -->
+            <div class="p-4 text-center" style="background: linear-gradient(135deg, #1B2820 0%, #2D4C3E 100%); color: #F7F6F2;">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 56px; height: 56px; background-color: rgba(247, 246, 242, 0.12); border: 1px solid rgba(247, 246, 242, 0.2);">
+                    <i class="bi bi-shield-lock-fill fs-3 text-warning"></i>
+                </div>
+                <h4 class="fw-bold mb-1">Cadastral Portal Access</h4>
+                <p class="small text-muted-light mb-0" style="color: #D2DBCF;">Sign in to view digitized land parcels and validation audits</p>
+            </div>
+
+            <div class="card-body p-4 bg-white">
+                <!-- Form Submission -->
+                <form method="post" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    {% if next %}
+                        <input type="hidden" name="next" value="{{ next }}">
+                    {% endif %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger py-2 small mb-3">
+                            {% for error in form.non_field_errors %}
+                                <div><i class="bi bi-exclamation-triangle-fill me-1"></i> {{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <!-- Username / Email Field -->
+                    <div class="mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold small text-secondary">
+                            <i class="bi bi-person me-1"></i> Username or Registered Email
+                        </label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.username.errors|first }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold small text-secondary mb-0">
+                                <i class="bi bi-key me-1"></i> Account Password
+                            </label>
+                        </div>
+                        <div class="mt-1">
+                            {{ form.password }}
+                        </div>
+                        {% if form.password.errors %}
+                            <div class="text-danger small mt-1">
+                                {{ form.password.errors|first }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                        <i class="bi bi-box-arrow-in-right"></i> Sign In to Portal
+                    </button>
+                </form>
+
+                <!-- Demo Credentials Helper Box -->
+                <div class="mt-4 p-3 rounded-2 border" style="background-color: #F8FAF8; border-color: #E2E8E0 !important;">
+                    <div class="d-flex align-items-center mb-1 text-secondary small fw-bold">
+                        <i class="bi bi-info-circle-fill me-1 text-primary"></i> Evaluator / Demo Credentials:
+                    </div>
+                    <div class="small text-muted">
+                        <div><strong>Username:</strong> <code class="text-dark bg-white px-1 border rounded">admin</code></div>
+                        <div><strong>Password:</strong> <code class="text-dark bg-white px-1 border rounded">admin123</code></div>
+                    </div>
+                </div>
+
+                <!-- Footer Switcher -->
+                <div class="text-center mt-4 pt-3 border-top">
+                    <p class="small text-muted mb-0">
+                        Don't have an account yet? 
+                        <a href="{% url 'signup' %}" class="fw-semibold text-primary text-decoration-none">Create a new account</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Home Link -->
+        <div class="text-center mt-3">
+            <a href="{% url 'home' %}" class="text-muted small text-decoration-none">
+                <i class="bi bi-arrow-left me-1"></i> Return to Public Home Page
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

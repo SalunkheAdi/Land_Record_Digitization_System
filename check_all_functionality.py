@@ -18,6 +18,7 @@ setup_test_environment()
 
 from django.test import Client
 from django.urls import reverse
+from django.contrib.auth.models import User
 from records.models import LandOwner, LandParcel
 from validation.models import ValidationAudit
 from validation.services import IntelligentValidationEngine
@@ -38,6 +39,31 @@ def run_audit():
             print(f" [PASS] {name} {extra}")
         else:
             print(f" [FAIL] {name} - FAILED! {extra}")
+
+    # -------------------------------------------------------------
+    # 0. AUTHENTICATION & ACCESS CONTROL AUDIT
+    # -------------------------------------------------------------
+    print("\n--- 0. Testing Authentication & Access Control ---")
+    
+    # Anonymous unauthenticated checks
+    anon_dash = client.get(reverse('dashboard'))
+    assert_check("Unauthenticated /dashboard/ Redirects (302) to Login", anon_dash.status_code == 302 and reverse('login') in anon_dash.url)
+
+    anon_parcels = client.get(reverse('parcel_list'))
+    assert_check("Unauthenticated /parcels/ Redirects (302) to Login", anon_parcels.status_code == 302 and reverse('login') in anon_parcels.url)
+
+    login_page = client.get(reverse('login'))
+    assert_check("Login View ('/login/') Status 200", login_page.status_code == 200)
+
+    signup_page = client.get(reverse('signup'))
+    assert_check("Sign Up View ('/signup/') Status 200", signup_page.status_code == 200)
+
+    # Log in test user for authenticated operations
+    admin_user = User.objects.filter(username='admin').first()
+    if not admin_user:
+        admin_user = User.objects.create_superuser('admin', 'admin@cadastre.gov.in', 'admin123')
+    client.force_login(admin_user)
+    assert_check("Client Authenticated as Superuser ('admin')", True)
 
     # -------------------------------------------------------------
     # 1. ROOT & GENERAL VIEWS
@@ -244,8 +270,11 @@ def run_audit():
     # 7. DJANGO ADMIN PORTAL
     # -------------------------------------------------------------
     print("\n--- 7. Testing Django Admin Portal Registration ---")
-    res_admin = client.get('/admin/login/')
+    res_admin = Client().get('/admin/login/')
     assert_check("Django Admin Login page accessible (Status 200)", res_admin.status_code == 200)
+
+    res_admin_auth = client.get('/admin/')
+    assert_check("Django Admin Index accessible for authenticated superuser (Status 200)", res_admin_auth.status_code == 200)
 
     # -------------------------------------------------------------
     # SUMMARY
