@@ -146,10 +146,187 @@
         </div>
     </footer>
 
+    <!-- ==============================================================
+         Floating Cadastral AI Risk Agent (Bottom Right Corner)
+         ============================================================== -->
+    <div id="aiRiskAgentWidget">
+        <!-- Floating Launcher Pill & Button -->
+        <button type="button" class="ai-bot-launcher" id="aiBotLauncher" aria-label="Open AI Cadastral Risk Agent" title="Open Cadastral AI Risk Detection Agent">
+            <span class="ai-bot-badge-pill d-none d-sm-flex">
+                <span class="ai-pulse-dot"></span>
+                <span>AI Risk Agent</span>
+            </span>
+            <div class="ai-bot-btn">
+                <i class="bi bi-robot fs-4"></i>
+            </div>
+        </button>
+
+        <!-- Floating Chat Modal -->
+        <div class="ai-bot-modal" id="aiBotModal" role="dialog" aria-labelledby="aiBotTitle">
+            <!-- Header -->
+            <div class="ai-bot-header">
+                <div class="d-flex align-items-center gap-2">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-white bg-opacity-25" style="width:34px; height:34px;">
+                        <i class="bi bi-shield-check text-warning fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold small lh-1 text-white" id="aiBotTitle">GeoCadastre AI Risk Agent</div>
+                        <div class="text-white-50" style="font-size: 0.72rem;">Heuristic Land Audit Intelligence</div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-link text-white p-0 text-decoration-none" id="aiBotClose" title="Minimize Agent">
+                    <i class="bi bi-x-lg fs-6"></i>
+                </button>
+            </div>
+
+            <!-- Messages Body -->
+            <div class="ai-bot-messages" id="aiBotMessages">
+                <!-- Welcome Bot Message -->
+                <div class="ai-msg ai-msg-bot">
+                    <div class="d-flex align-items-center gap-1 text-primary fw-bold mb-1" style="font-size: 0.75rem;">
+                        <i class="bi bi-robot"></i> AI Risk Inspector
+                    </div>
+                    Hello! I am your <strong>Cadastral AI Risk Detection Agent</strong>.<br><br>
+                    I calculate parcel compliance scores (0–100%) and detect legal disputes, circle rate anomalies, and boundary defects across 5 heuristic pillars.<br><br>
+                    Ask me any question or click a quick prompt below:
+                    
+                    <div class="ai-quick-chips mt-2">
+                        <span class="ai-chip" data-query="How is the AI Risk Score calculated?">🧠 How is AI score calculated?</span>
+                        <span class="ai-chip" data-query="Inspect SY-99-DISP (35% High Risk)">🚨 Why did SY-99-DISP score 35%?</span>
+                        <span class="ai-chip" data-query="Inspect SY-401-ECO (68% Medium Risk)">⚠️ Inspect SY-401-ECO (68%)</span>
+                        <span class="ai-chip" data-query="Inspect SY-104-2B (96% Clean Title)">✅ Inspect SY-104-2B (96%)</span>
+                        <span class="ai-chip" data-query="Show high risk parcels">📋 Show all high-risk parcels</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div class="ai-typing-indicator px-3 py-1" id="aiTypingIndicator">
+                <span class="spinner-border spinner-border-sm text-primary" style="width: 0.8rem; height: 0.8rem;"></span>
+                <span>AI Agent is analyzing cadastral heuristics...</span>
+            </div>
+
+            <!-- Footer / Input -->
+            <div class="ai-bot-footer">
+                <form id="aiBotForm" class="d-flex gap-2">
+                    <input type="text" id="aiBotInput" class="form-control form-control-sm border shadow-none" placeholder="Ask question or enter Survey No (e.g. SY-104-2B)..." autocomplete="off" required>
+                    <button type="submit" class="btn btn-primary btn-sm px-3 d-flex align-items-center justify-content-center" title="Send message">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </form>
+                <div class="text-center text-muted mt-1" style="font-size: 0.68rem;">
+                    GeoCadastre AI Heuristic v2.4 • Automated Cadastral Risk Scoring
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Custom Project JS -->
     <script src="{% static 'js/main.js' %}"></script>
+
+    <!-- AI Bot Client Controller -->
+    <script>
+        (function() {
+            var launcher = document.getElementById('aiBotLauncher');
+            var modal = document.getElementById('aiBotModal');
+            var closeBtn = document.getElementById('aiBotClose');
+            var form = document.getElementById('aiBotForm');
+            var input = document.getElementById('aiBotInput');
+            var messages = document.getElementById('aiBotMessages');
+            var typing = document.getElementById('aiTypingIndicator');
+
+            if (!launcher || !modal) return;
+
+            function toggleModal() {
+                modal.classList.toggle('active');
+                if (modal.classList.contains('active')) {
+                    input.focus();
+                    messages.scrollTop = messages.scrollHeight;
+                }
+            }
+
+            launcher.addEventListener('click', toggleModal);
+            closeBtn.addEventListener('click', toggleModal);
+
+            function appendMessage(htmlContent, isUser) {
+                var msg = document.createElement('div');
+                msg.className = 'ai-msg ' + (isUser ? 'ai-msg-user' : 'ai-msg-bot');
+                if (!isUser) {
+                    msg.innerHTML = '<div class="d-flex align-items-center gap-1 text-primary fw-bold mb-1" style="font-size: 0.75rem;"><i class="bi bi-robot"></i> AI Risk Inspector</div>' + htmlContent;
+                } else {
+                    msg.textContent = htmlContent;
+                }
+                messages.appendChild(msg);
+                messages.scrollTop = messages.scrollHeight;
+                return msg;
+            }
+
+            function appendChips(chips) {
+                if (!chips || !chips.length) return;
+                var chipContainer = document.createElement('div');
+                chipContainer.className = 'ai-quick-chips';
+                chips.forEach(function(chipText) {
+                    var chip = document.createElement('span');
+                    chip.className = 'ai-chip';
+                    chip.textContent = chipText;
+                    chip.addEventListener('click', function() {
+                        sendQuery(chipText);
+                    });
+                    chipContainer.appendChild(chip);
+                });
+                messages.appendChild(chipContainer);
+                messages.scrollTop = messages.scrollHeight;
+            }
+
+            function sendQuery(queryText) {
+                if (!queryText || !queryText.trim()) return;
+                appendMessage(queryText, true);
+                input.value = '';
+                typing.style.display = 'flex';
+                messages.scrollTop = messages.scrollHeight;
+
+                fetch('/api/ai-agent/query/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ query: queryText })
+                })
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    typing.style.display = 'none';
+                    if (data && data.response) {
+                        appendMessage(data.response, false);
+                        if (data.quick_suggestions) {
+                            appendChips(data.quick_suggestions);
+                        }
+                    } else {
+                        appendMessage("I have analyzed your query. You can ask: <em>'How is the score calculated?'</em> or <em>'Inspect SY-104-2B'</em>.", false);
+                    }
+                })
+                .catch(function(err) {
+                    typing.style.display = 'none';
+                    appendMessage("I am currently synchronizing with the cadastral heuristic engine. You can ask: <em>'How is the score calculated?'</em> or <em>'Inspect SY-99-DISP'</em>.", false);
+                });
+            }
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                sendQuery(input.value);
+            });
+
+            // Delegate clicks on pre-rendered chips
+            messages.addEventListener('click', function(e) {
+                var chip = e.target.closest('.ai-chip');
+                if (chip && chip.dataset.query) {
+                    sendQuery(chip.dataset.query);
+                }
+            });
+        })();
+    </script>
 
     <!-- Secret Admin Gateway Trigger (Ctrl+Shift+1, Ctrl+Shift+A, or Triple-Click Logo) -->
     <script>

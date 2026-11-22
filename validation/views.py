@@ -2,12 +2,13 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.db.models import Avg, Count
+from django.db.models import Avg, Count, Q
 from records.models import LandParcel
 from .models import ValidationAudit
 from .forms import ValidationAuditForm
 from .services import IntelligentValidationEngine
 import uuid
+import json
 
 
 @login_required
@@ -146,3 +147,164 @@ def audit_fiscal_year_view(request, year):
         'avg_score': round(avg_score, 1),
     }
     return render(request, 'validation/fiscal_audit_summary.html', context)
+
+
+def ai_agent_chat_api(request):
+    """
+    Interactive Cadastral AI Risk Agent API endpoint.
+    Processes user inquiries about AI risk detection scoring, parcel heuristics,
+    boundary anomalies, and legal dispute diagnostics.
+    """
+    query = ""
+    if request.method == 'POST':
+        try:
+            body = request.body.decode('utf-8')
+            if body:
+                data = json.loads(body)
+                query = data.get('query', '').strip()
+        except Exception:
+            query = request.POST.get('query', '').strip()
+    else:
+        query = request.GET.get('query', '').strip()
+
+    q_lower = query.lower()
+
+    # 1. Explanation of AI Risk Score Bases / Calculation
+    if any(k in q_lower for k in ['basis', 'bases', 'calculate', 'score', 'formula', 'criteria', 'how', 'rule', 'weight']):
+        response_text = (
+            "<strong>🧠 Cadastral AI Risk Assessment Methodology:</strong><br><br>"
+            "The AI Compliance Engine starts at a baseline of <strong>100 Points</strong> and performs 5 automated heuristic audits:<br><br>"
+            "<strong>1. Title Deed & Survey Number Syntax (15 Pts):</strong> Validates standard cadastral regex <code>^[A-Z0-9\\-/\\.]+$</code>.<br>"
+            "<strong>2. GPS Centroid Geospatial Sanity (20 Pts):</strong> Verifies physical latitude/longitude coordinate bounding.<br>"
+            "<strong>3. Zoning & Area Thresholds (15 - 25 Pts):</strong> Flags over-sized residential plots (>15k sq m) or unauthorized agricultural fragmentation (<200 sq m).<br>"
+            "<strong>4. Circle Rate Valuation vs. Area (10 Pts):</strong> Identifies stamp duty undervaluation (&lt; ₹5/sqm) or hyper-inflated speculative rates (&gt; ₹500k/sqm).<br>"
+            "<strong>5. Active Litigation & Court Injunctions (35 Pts):</strong> Immediate 35-point penalty if an active court stay order or dispute flag exists.<br><br>"
+            "<strong>⚖️ Risk Category & Determination Matrix:</strong><br>"
+            "• <span class='badge bg-success'>80% - 100%</span> <strong>Low Risk:</strong> Clean Title &rarr; <em>Approved</em><br>"
+            "• <span class='badge bg-warning text-dark'>50% - 79%</span> <strong>Medium Risk:</strong> Minor Anomaly &rarr; <em>Conditional</em><br>"
+            "• <span class='badge bg-danger'>&lt; 50%</span> <strong>High Risk:</strong> Critical Discrepancy &rarr; <em>Rejected</em>"
+        )
+        return JsonResponse({
+            'status': 'success',
+            'intent': 'scoring_explanation',
+            'response': response_text,
+            'quick_suggestions': [
+                "Inspect SY-99-DISP (35% High Risk)",
+                "Inspect SY-401-ECO (68% Medium Risk)",
+                "Inspect SY-104-2B (96% Clean Title)",
+                "List all high risk parcels"
+            ]
+        })
+
+    # 2. Specific Survey Number Check (e.g. SY-99-DISP, SY-401-ECO, SY-104-2B, SY-55-1C, etc.)
+    matched_parcel = None
+    all_parcels = LandParcel.objects.select_related('owner').all()
+    for p in all_parcels:
+        if p.survey_number.lower() in q_lower or (p.title_deed_number and p.title_deed_number.lower() in q_lower):
+            matched_parcel = p
+            break
+
+    if matched_parcel:
+        eval_res = IntelligentValidationEngine.evaluate_parcel(matched_parcel)
+        score = eval_res['compliance_score']
+        risk = eval_res['risk_level']
+        det = eval_res['determination']
+        
+        anomalies_html = ""
+        if eval_res['anomalies']:
+            anomalies_html = "<br><br><strong>⚠️ Anomalies Detected:</strong><ul>" + "".join(f"<li>{a}</li>" for a in eval_res['anomalies']) + "</ul>"
+        else:
+            anomalies_html = "<br><br><strong>✅ Clean Record:</strong> All geospatial, title, and zoning criteria passed without defect."
+
+        badge_class = "bg-success" if risk == "LOW" else ("bg-warning text-dark" if risk == "MEDIUM" else "bg-danger")
+
+        response_text = (
+            f"<strong>🔍 AI Cadastral Diagnostic: {matched_parcel.survey_number}</strong><br>"
+            f"• <strong>Owner:</strong> {matched_parcel.owner.full_name}<br>"
+            f"• <strong>District / Village:</strong> {matched_parcel.district}, {matched_parcel.village}<br>"
+            f"• <strong>Legal Area:</strong> {matched_parcel.area_sq_meters} sq.m ({matched_parcel.area_in_acres} acres)<br>"
+            f"• <strong>Valuation:</strong> ₹{matched_parcel.market_valuation:,.2f}<br>"
+            f"• <strong>AI Compliance Score:</strong> <span class='badge {badge_class} fs-6'>{score}%</span><br>"
+            f"• <strong>Risk Classification:</strong> <strong>{risk} RISK</strong> &rarr; Determination: <strong>{det}</strong>"
+            f"{anomalies_html}"
+            f"<div class='mt-2'><a href='/parcel/{matched_parcel.slug}/' class='btn btn-sm btn-outline-primary py-0' target='_blank'>Open Full Parcel Dossier &rarr;</a></div>"
+        )
+        return JsonResponse({
+            'status': 'success',
+            'intent': 'parcel_diagnostic',
+            'parcel_id': matched_parcel.id,
+            'response': response_text,
+            'quick_suggestions': [
+                "How is this score calculated?",
+                "List all high risk parcels",
+                "Inspect SY-104-2B (96%)"
+            ]
+        })
+
+    # 3. High Risk / Disputed / Rejected Parcels query
+    if any(k in q_lower for k in ['high', 'dispute', 'rejected', 'danger', 'critical', '35%']):
+        high_risk_parcels = LandParcel.objects.filter(
+            Q(is_disputed=True) | Q(digitization_status='DISPUTED')
+        ).select_related('owner')[:5]
+        
+        items_html = ""
+        for p in high_risk_parcels:
+            items_html += f"<li><strong>{p.survey_number}</strong> ({p.district}) - Owner: {p.owner.full_name} | <a href='/parcel/{p.slug}/' target='_blank'>View Dossier</a></li>"
+        
+        response_text = (
+            "<strong>🚨 High Risk & Disputed Cadastral Holdings:</strong><br><br>"
+            f"Currently flagged parcels with critical anomalies or tribunal dispute stays:<ul>{items_html or '<li>No high risk parcels recorded.</li>'}</ul>"
+            "Parcels with active disputes automatically receive a <strong>-35 point penalty</strong>, triggering a 'High Risk - Critical Discrepancy' classification."
+        )
+        return JsonResponse({
+            'status': 'success',
+            'intent': 'high_risk_list',
+            'response': response_text,
+            'quick_suggestions': [
+                "Inspect SY-99-DISP (35% High Risk)",
+                "How is the score calculated?",
+                "Inspect SY-104-2B (Clean Title)"
+            ]
+        })
+
+    # 4. Clean / Approved Parcels query
+    if any(k in q_lower for k in ['clean', 'approved', 'low', 'verified', '96%']):
+        verified_parcels = LandParcel.objects.filter(
+            digitization_status='VERIFIED', is_disputed=False
+        ).select_related('owner')[:4]
+        
+        items_html = "".join(f"<li><strong>{p.survey_number}</strong> ({p.village}, {p.district}) - ₹{p.market_valuation:,.0f}</li>" for p in verified_parcels)
+        response_text = (
+            "<strong>✅ Verified Clean Land Holdings (Low Risk):</strong><br><br>"
+            f"These parcels scored between <strong>80% - 100%</strong> with zero zoning or dispute flags:<ul>{items_html}</ul>"
+        )
+        return JsonResponse({
+            'status': 'success',
+            'intent': 'clean_list',
+            'response': response_text,
+            'quick_suggestions': [
+                "How is the score calculated?",
+                "Inspect SY-99-DISP (35% High Risk)"
+            ]
+        })
+
+    # 5. Default Help / Fallback
+    default_text = (
+        "<strong>🤖 GeoCadastre AI Risk Assistant</strong><br><br>"
+        "I am ready to audit land records and explain risk determinations:<br>"
+        "• <em>'How is the AI score calculated?'</em><br>"
+        "• <em>'Why did SY-99-DISP score 35%?'</em><br>"
+        "• <em>'Show high risk parcels'</em><br>"
+        "• <em>'Inspect SY-104-2B'</em>"
+    )
+    return JsonResponse({
+        'status': 'success',
+        'intent': 'help',
+        'response': default_text,
+        'quick_suggestions': [
+            "How is the AI Risk Score calculated?",
+            "Inspect SY-99-DISP (35% Score)",
+            "Inspect SY-401-ECO (68% Score)",
+            "Inspect SY-104-2B (96% Score)"
+        ]
+    })

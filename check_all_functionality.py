@@ -152,6 +152,22 @@ def run_audit():
     assert_check("JSON contains compliance score (0-100)", 0 <= json_data['validation_result']['compliance_score'] <= 100)
     assert_check("JSON contains detailed rule checks", len(json_data['validation_result']['detailed_checks']) >= 4)
 
+    # 4.2 Interactive AI Cadastral Agent Chat API Endpoint
+    res_agent = client.post(
+        reverse('ai_agent_chat_api'),
+        data='{"query": "How is the AI score calculated?"}',
+        content_type='application/json'
+    )
+    assert_check("AI Agent Chat API Status 200", res_agent.status_code == 200)
+    assert_check("AI Agent explains 5 scoring pillars", 'Cadastral AI Risk Assessment Methodology' in res_agent.json()['response'])
+
+    res_diag = client.post(
+        reverse('ai_agent_chat_api'),
+        data=f'{{"query": "Inspect {sample_parcel.survey_number}"}}',
+        content_type='application/json'
+    )
+    assert_check(f"AI Agent returns live parcel diagnostic for {sample_parcel.survey_number}", sample_parcel.survey_number in res_diag.json()['response'])
+
     # -------------------------------------------------------------
     # 5. COMPLETE CRUD OPERATIONS THROUGH ORM
     # -------------------------------------------------------------

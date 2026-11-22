@@ -558,3 +558,193 @@ footer {
 footer strong {
     color: #d1dfd6;
 }
+
+/* ==============================================================
+   Floating AI Cadastral Risk Agent Widget
+   ============================================================== */
+.ai-bot-launcher {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1040;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.ai-bot-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1B2820 0%, #2D4C3E 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(27, 40, 32, 0.35);
+    border: 2px solid rgba(247, 246, 242, 0.25);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ai-bot-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 12px 30px rgba(27, 40, 32, 0.45);
+}
+
+.ai-bot-badge-pill {
+    background: #1B2820;
+    color: #F7F6F2;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid #3c5445;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ai-pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #28a745;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+    animation: pulse-green 1.8s infinite;
+}
+
+@keyframes pulse-green {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 7px rgba(40, 167, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
+}
+
+.ai-bot-modal {
+    position: fixed;
+    bottom: 92px;
+    right: 24px;
+    width: 390px;
+    max-width: calc(100vw - 32px);
+    height: 540px;
+    max-height: calc(100vh - 120px);
+    background: #FFFFFF;
+    border-radius: 14px;
+    border: 1px solid #D2DBCF;
+    box-shadow: 0 16px 40px rgba(27, 40, 32, 0.22);
+    z-index: 1041;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: fadeInModal 0.25s ease-out forwards;
+}
+
+.ai-bot-modal.active {
+    display: flex;
+}
+
+@keyframes fadeInModal {
+    from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.ai-bot-header {
+    background: linear-gradient(135deg, #1B2820 0%, #2D4C3E 100%);
+    color: #F7F6F2;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.ai-bot-messages {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    background: #F8FAF8;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ai-msg {
+    max-width: 88%;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    padding: 10px 14px;
+    border-radius: 12px;
+    word-wrap: break-word;
+}
+
+.ai-msg-bot {
+    align-self: flex-start;
+    background: #FFFFFF;
+    color: #232724;
+    border: 1px solid #E2DED4;
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+.ai-msg-user {
+    align-self: flex-end;
+    background: #2D4C3E;
+    color: #FFFFFF;
+    border-bottom-right-radius: 4px;
+}
+
+.ai-quick-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.ai-chip {
+    font-size: 0.74rem;
+    background: #EDF3EF;
+    color: #24352B;
+    border: 1px solid #D1DFD6;
+    padding: 4px 10px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.ai-chip:hover {
+    background: #2D4C3E;
+    color: #FFFFFF;
+    border-color: #2D4C3E;
+}
+
+.ai-bot-footer {
+    padding: 12px;
+    background: #FFFFFF;
+    border-top: 1px solid #E2DED4;
+}
+
+.ai-typing-indicator {
+    font-size: 0.78rem;
+    color: #6B6F6A;
+    font-style: italic;
+    display: none;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+}

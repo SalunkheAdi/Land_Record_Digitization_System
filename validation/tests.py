@@ -2,6 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth.models import User
 from decimal import Decimal
+import json
 from records.models import LandOwner, LandParcel
 from validation.models import ValidationAudit
 
@@ -117,3 +118,29 @@ class ValidationAppTests(TestCase):
         # Verify parcel status synced to VERIFIED
         self.parcel.refresh_from_db()
         self.assertEqual(self.parcel.digitization_status, 'VERIFIED')
+
+    def test_05_ai_agent_chat_api_scoring_and_parcel_diagnostic(self):
+        """Test AI Agent API endpoint answers scoring criteria and parcel diagnostics."""
+        url = reverse('ai_agent_chat_api')
+
+        # Test query about how score is calculated
+        res_calc = self.client.post(
+            url,
+            data=json.dumps({'query': 'How is the AI risk score calculated?'}),
+            content_type='application/json'
+        )
+        self.assertEqual(res_calc.status_code, 200)
+        self.assertEqual(res_calc.json()['status'], 'success')
+        self.assertEqual(res_calc.json()['intent'], 'scoring_explanation')
+        self.assertIn('Cadastral AI Risk Assessment Methodology', res_calc.json()['response'])
+
+        # Test query about specific parcel
+        res_parcel = self.client.post(
+            url,
+            data=json.dumps({'query': f'Inspect {self.parcel.survey_number}'}),
+            content_type='application/json'
+        )
+        self.assertEqual(res_parcel.status_code, 200)
+        self.assertEqual(res_parcel.json()['status'], 'success')
+        self.assertEqual(res_parcel.json()['intent'], 'parcel_diagnostic')
+        self.assertIn(self.parcel.survey_number, res_parcel.json()['response'])
