@@ -12,6 +12,19 @@
     <!-- Custom Project Natural CSS -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
+    <!-- Immediate Theme Initialization (Prevents FOUC) -->
+    <script>
+        (function() {
+            var savedTheme = localStorage.getItem('geocadastre_theme');
+            if (savedTheme === 'dark' || savedTheme === 'light') {
+                document.documentElement.setAttribute('data-bs-theme', savedTheme);
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.setAttribute('data-bs-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-bs-theme', 'light');
+            }
+        })();
+    </script>
 </head>
 <body>
 
@@ -75,6 +88,12 @@
                 </ul>
 
                 <div class="d-flex align-items-center">
+                    <!-- Light / Dark Mode Toggle Button -->
+                    <button class="btn btn-sm theme-toggle-btn d-flex align-items-center gap-1 me-2" id="themeToggleBtn" type="button" title="Switch Theme" aria-label="Toggle Light / Dark Mode">
+                        <i class="bi bi-moon-stars-fill" id="themeToggleIcon"></i>
+                        <span class="d-none d-sm-inline small fw-medium" id="themeToggleText">Dark</span>
+                    </button>
+
                     {% if user.is_authenticated %}
                         <a href="{% url 'parcel_create' %}" class="btn btn-primary btn-sm fw-semibold me-3">
                             <i class="bi bi-plus-lg me-1"></i> New Registration
@@ -481,6 +500,63 @@
                     } else {
                         clearTimeout(clickTimer);
                         clickTimer = setTimeout(function() { clicks = 0; }, 600);
+                    }
+                });
+            }
+        })();
+
+        // ==============================================================
+        // Dark Mode / Light Mode Interactive Toggle Controller
+        // ==============================================================
+        (function() {
+            var themeBtn = document.getElementById('themeToggleBtn');
+            var themeIcon = document.getElementById('themeToggleIcon');
+            var themeText = document.getElementById('themeToggleText');
+
+            function syncThemeUI(theme) {
+                if (!themeBtn) return;
+                if (theme === 'dark') {
+                    if (themeIcon) {
+                        themeIcon.className = 'bi bi-sun-fill text-warning';
+                    }
+                    if (themeText) {
+                        themeText.textContent = 'Light';
+                    }
+                    themeBtn.setAttribute('title', 'Switch to Light Mode');
+                } else {
+                    if (themeIcon) {
+                        themeIcon.className = 'bi bi-moon-stars-fill';
+                    }
+                    if (themeText) {
+                        themeText.textContent = 'Dark';
+                    }
+                    themeBtn.setAttribute('title', 'Switch to Dark Mode');
+                }
+            }
+
+            // Sync UI with current attribute
+            var currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+            syncThemeUI(currentTheme);
+
+            if (themeBtn) {
+                themeBtn.addEventListener('click', function() {
+                    var activeTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+                    var nextTheme = (activeTheme === 'dark') ? 'light' : 'dark';
+                    document.documentElement.setAttribute('data-bs-theme', nextTheme);
+                    try {
+                        localStorage.setItem('geocadastre_theme', nextTheme);
+                    } catch(e) {}
+                    syncThemeUI(nextTheme);
+                });
+            }
+
+            // Listen for system theme changes if not manually set
+            if (window.matchMedia) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+                    if (!localStorage.getItem('geocadastre_theme')) {
+                        var sysTheme = e.matches ? 'dark' : 'light';
+                        document.documentElement.setAttribute('data-bs-theme', sysTheme);
+                        syncThemeUI(sysTheme);
                     }
                 });
             }

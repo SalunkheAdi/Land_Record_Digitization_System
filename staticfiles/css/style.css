@@ -748,3 +748,346 @@ footer strong {
     gap: 6px;
     padding: 4px 8px;
 }
+
+/* ==============================================================
+   Theme Switcher Button
+   ============================================================== */
+.theme-toggle-btn {
+    border-color: rgba(255, 255, 255, 0.25) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #f2f5f3 !important;
+    padding: 0.32rem 0.72rem;
+    border-radius: 20px;
+    font-size: 0.84rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.theme-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.18) !important;
+    border-color: rgba(255, 255, 255, 0.45) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+/* ==============================================================
+   Dark Mode Theme System (Natural Forest Nocturnal Palette)
+   Activated via [data-bs-theme="dark"]
+   ============================================================== */
+[data-bs-theme="dark"] {
+    /* Nocturnal Earth & Forest Palette */
+    --earth-dark: #0c140f;          /* Deep nocturnal evergreen */
+    --earth-dark-surface: #121d16;  /* Elevated timber dark */
+    --earth-forest: #3d6854;        /* Vibrant forest pine */
+    --earth-forest-hover: #4e826b;  /* Forest pine hover */
+    --earth-sage: #6b9982;          /* Sage green */
+    --earth-moss: #8db59f;          /* Light moss accent */
+    --earth-stone: #101713;         /* Dark mossy stone background */
+    --earth-card: #16221b;          /* Card surface */
+    --earth-card-muted: #1c2b22;    /* Secondary card / header background */
+    --earth-border: #26382e;        /* Dark moss border */
+    --earth-border-subtle: #1d2c23; /* Subtle dark border */
+    --earth-text: #e2e8e4;          /* Soft ivory text */
+    --earth-text-muted: #95a39a;    /* Muted sage text */
+    --earth-sand: #293d31;          /* Dark sand */
+    
+    /* Status Badges & Indicators (Nocturnal High-Legibility) */
+    --status-verified-bg: #143323;
+    --status-verified-text: #66d99e;
+    --status-verified-border: #1e4a33;
+    
+    --status-pending-bg: #382c12;
+    --status-pending-text: #f0c15d;
+    --status-pending-border: #52401a;
+    
+    --status-disputed-bg: #3b1915;
+    --status-disputed-text: #f08373;
+    --status-disputed-border: #572520;
+    
+    --status-flagged-bg: #3a2213;
+    --status-flagged-text: #f09e5e;
+    --status-flagged-border: #57331b;
+
+    --status-info-bg: #152833;
+    --status-info-text: #70b3d6;
+    --status-info-border: #1f3c4d;
+
+    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.45);
+
+    /* Bootstrap native variable overrides */
+    --bs-body-bg: var(--earth-stone);
+    --bs-body-color: var(--earth-text);
+    --bs-card-bg: var(--earth-card);
+    --bs-card-border-color: var(--earth-border);
+    --bs-border-color: var(--earth-border);
+    --bs-tertiary-bg: var(--earth-card-muted);
+}
+
+/* Dark Mode Global Background & Typography */
+[data-bs-theme="dark"] body {
+    background-color: var(--earth-stone) !important;
+    color: var(--earth-text) !important;
+}
+
+/* Dark Mode Cards & Surfaces */
+[data-bs-theme="dark"] .card {
+    background-color: var(--earth-card) !important;
+    border-color: var(--earth-border) !important;
+    color: var(--earth-text) !important;
+}
+
+[data-bs-theme="dark"] .card-header,
+[data-bs-theme="dark"] .card-footer {
+    background-color: var(--earth-card-muted) !important;
+    border-color: var(--earth-border) !important;
+    color: var(--earth-text) !important;
+}
+
+[data-bs-theme="dark"] .card-body.bg-white,
+[data-bs-theme="dark"] .card-header.bg-white,
+[data-bs-theme="dark"] .card-footer.bg-white,
+[data-bs-theme="dark"] .bg-white {
+    background-color: var(--earth-card) !important;
+    color: var(--earth-text) !important;
+    border-color: var(--earth-border) !important;
+}
+
+[data-bs-theme="dark"] .bg-light {
+    background-color: var(--earth-card-muted) !important;
+    color: var(--earth-text) !important;
+    border-color: var(--earth-border) !important;
+}
+
+[data-bs-theme="dark"] .stat-card {
+    background: var(--earth-card) !important;
+    border-color: var(--earth-border) !important;
+    color: var(--earth-text) !important;
+}
+
+[data-bs-theme="dark"] .stat-title {
+    color: var(--earth-text-muted) !important;
+}
+
+[data-bs-theme="dark"] .stat-number {
+    color: #6ed9a5 !important;
+}
+
+[data-bs-theme="dark"] .dossier-card {
+    background: var(--earth-card) !important;
+    border-color: var(--earth-border) !important;
+}
+
+[data-bs-theme="dark"] .info-label {
+    color: var(--earth-text-muted) !important;
+}
+
+[data-bs-theme="dark"] .info-value {
+    color: var(--earth-text) !important;
+}
+
+/* Dark Mode Text Utility Overrides */
+[data-bs-theme="dark"] .text-dark {
+    color: #e2e8e4 !important;
+}
+
+[data-bs-theme="dark"] .text-muted {
+    color: #95a39a !important;
+}
+
+[data-bs-theme="dark"] .text-secondary {
+    color: #a4b3a9 !important;
+}
+
+[data-bs-theme="dark"] .text-body {
+    color: #e2e8e4 !important;
+}
+
+/* Dark Mode Tables */
+[data-bs-theme="dark"] .cadastral-table {
+    color: var(--earth-text) !important;
+    border-color: var(--earth-border) !important;
+}
+
+[data-bs-theme="dark"] .cadastral-table th {
+    background-color: var(--earth-card-muted) !important;
+    color: #cbd7cf !important;
+    border-color: var(--earth-border) !important;
+}
+
+[data-bs-theme="dark"] .cadastral-table td {
+    background-color: transparent !important;
+    color: var(--earth-text) !important;
+    border-color: var(--earth-border-subtle) !important;
+}
+
+[data-bs-theme="dark"] .table-hover tbody tr:hover td {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+[data-bs-theme="dark"] .table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--earth-text);
+    --bs-table-border-color: var(--earth-border);
+}
+
+/* Dark Mode Forms & Inputs */
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background-color: #121c16 !important;
+    color: #e2e8e4 !important;
+    border-color: var(--earth-border) !important;
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+    background-color: #17241c !important;
+    color: #ffffff !important;
+    border-color: var(--earth-sage) !important;
+    box-shadow: 0 0 0 0.2rem rgba(107, 153, 130, 0.25) !important;
+}
+
+[data-bs-theme="dark"] .form-control::placeholder {
+    color: #65756b !important;
+}
+
+[data-bs-theme="dark"] .input-group-text {
+    background-color: var(--earth-card-muted) !important;
+    color: var(--earth-text-muted) !important;
+    border-color: var(--earth-border) !important;
+}
+
+[data-bs-theme="dark"] .form-label {
+    color: #cbd7cf !important;
+}
+
+/* Dark Mode Dropdowns */
+[data-bs-theme="dark"] .dropdown-menu {
+    background-color: #18241d !important;
+    border-color: var(--earth-border) !important;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-bs-theme="dark"] .dropdown-item {
+    color: #dbe4de !important;
+}
+
+[data-bs-theme="dark"] .dropdown-item:hover,
+[data-bs-theme="dark"] .dropdown-item:focus {
+    background-color: #24382c !important;
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .dropdown-divider {
+    border-color: var(--earth-border) !important;
+}
+
+/* Dark Mode AI Validation Box */
+[data-bs-theme="dark"] .ai-validation-box {
+    background: #142219 !important;
+    border-color: #274030 !important;
+}
+
+[data-bs-theme="dark"] .ai-validation-box h5 {
+    color: #72cca1 !important;
+}
+
+/* Dark Mode Floating AI Bot Modal */
+[data-bs-theme="dark"] .ai-bot-modal {
+    background: #15221a !important;
+    border-color: #2b3f32 !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-bs-theme="dark"] .ai-bot-messages {
+    background: #0f1712 !important;
+}
+
+[data-bs-theme="dark"] .ai-msg-bot {
+    background: #1c2b21 !important;
+    color: #e2e8e4 !important;
+    border-color: #283c2e !important;
+}
+
+[data-bs-theme="dark"] .ai-chip {
+    background: #19271e !important;
+    color: #b7cebf !important;
+    border-color: #283e30 !important;
+}
+
+[data-bs-theme="dark"] .ai-chip:hover {
+    background: #2d4c3e !important;
+    color: #ffffff !important;
+    border-color: #3d6854 !important;
+}
+
+[data-bs-theme="dark"] .ai-bot-footer {
+    background: #15221a !important;
+    border-color: #26382e !important;
+}
+
+[data-bs-theme="dark"] #aiAgentInput {
+    background-color: #101712 !important;
+    color: #e2e8e4 !important;
+    border-color: #2b3f32 !important;
+}
+
+[data-bs-theme="dark"] #aiAgentInput:focus {
+    border-color: #4e826b !important;
+}
+
+[data-bs-theme="dark"] .ai-typing-indicator {
+    color: #8c9e92 !important;
+}
+
+/* Dark Mode Stat Card Accent Borders */
+[data-bs-theme="dark"] .border-stat-total {
+    border-left: 4px solid #508a6e !important;
+}
+
+[data-bs-theme="dark"] .border-stat-pending {
+    border-left: 4px solid #d4a037 !important;
+}
+
+[data-bs-theme="dark"] .border-stat-disputed {
+    border-left: 4px solid #cf5342 !important;
+}
+
+[data-bs-theme="dark"] .border-stat-score {
+    border-left: 4px solid #4a9e75 !important;
+}
+
+/* Dark Mode Button Outline Tweaks */
+[data-bs-theme="dark"] .btn-outline-primary {
+    color: #72cca1 !important;
+    border-color: #4a755f !important;
+}
+
+[data-bs-theme="dark"] .btn-outline-primary:hover {
+    background-color: var(--earth-forest) !important;
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary {
+    color: #cbd7cf !important;
+    border-color: #384f41 !important;
+}
+
+[data-bs-theme="dark"] .btn-outline-secondary:hover {
+    background-color: #24382c !important;
+    color: #ffffff !important;
+}
+
+/* Dark Mode General Borders */
+[data-bs-theme="dark"] .border {
+    border-color: var(--earth-border) !important;
+}
+
+[data-bs-theme="dark"] .border-bottom {
+    border-color: var(--earth-border) !important;
+}
+
+[data-bs-theme="dark"] .border-top {
+    border-color: var(--earth-border) !important;
+}
