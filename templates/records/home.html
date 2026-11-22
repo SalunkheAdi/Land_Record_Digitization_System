@@ -3,18 +3,18 @@
 {% block title %}Home - Intelligent Land Record Digitization & Validation Portal{% endblock %}
 
 {% block content %}
-<!-- Hero Section with Natural Forest Palette -->
-<div class="card border-0 shadow-sm mb-5 overflow-hidden" style="background: var(--earth-dark-surface); border-radius: 12px;">
+<!-- Hero Section with Modern Slate & Emerald Gradient -->
+<div class="card border-0 shadow-sm mb-5 overflow-hidden" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #064e3b 100%); border-radius: 14px;">
     <div class="card-body p-4 p-md-5 text-white">
         <div class="row align-items-center">
             <div class="col-lg-8">
-                <span class="badge mb-3 px-3 py-2" style="background: #334739; color: #d1dfd6; border: 1px solid #445d4b; font-size: 0.8rem;">
-                    <i class="bi bi-shield-check me-1 text-success"></i> Official Cadastral Information System
+                <span class="badge mb-3 px-3 py-2" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); font-size: 0.8rem;">
+                    <i class="bi bi-shield-check me-1"></i> Official Cadastral Information System
                 </span>
-                <h1 class="display-5 fw-bold mb-3" style="letter-spacing: -0.02em; color: #f4f7f5;">
+                <h1 class="display-5 fw-bold mb-3" style="letter-spacing: -0.02em; color: #ffffff;">
                     Intelligent Land Record Digitization & Validation System
                 </h1>
-                <p class="lead mb-4" style="color: #cbd7cf; font-size: 1.12rem; max-width: 680px;">
+                <p class="lead mb-4" style="color: #cbd5e1; font-size: 1.12rem; max-width: 680px;">
                     A unified digital cadastral registry engineered for digital land parcel mapping, automated title deed integrity, spatial centroid validation, and real-time litigation tracking.
                 </p>
 
@@ -45,7 +45,7 @@
                         <a href="{% url 'parcel_list' %}" class="btn btn-outline-light btn-sm">
                             <i class="bi bi-collection me-1"></i> Browse All Records
                         </a>
-                        <a href="{% url 'parcel_create' %}" class="btn btn-sm" style="background-color: var(--earth-forest); color: #ffffff;">
+                        <a href="{% url 'parcel_create' %}" class="btn btn-primary btn-sm">
                             <i class="bi bi-plus-circle me-1"></i> Digitize New Parcel
                         </a>
                     {% else %}
@@ -61,18 +61,18 @@
 
             <!-- Hero Emblem / Visual Summary -->
             <div class="col-lg-4 text-center mt-4 mt-lg-0 d-none d-lg-block">
-                <div class="p-4 rounded border text-start" style="background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.1) !important;">
-                    <h6 class="text-uppercase fw-bold text-muted small mb-3" style="color: #9cb5a8 !important;">Cadastral State Summary</h6>
+                <div class="p-4 rounded border text-start" style="background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.12) !important;">
+                    <h6 class="text-uppercase fw-bold small mb-3" style="color: #6ee7b7 !important; letter-spacing: 0.05em;">Cadastral State Summary</h6>
                     <div class="mb-3 pb-2 border-bottom border-secondary border-opacity-25">
-                        <div class="small text-muted" style="color: #cbd7cf !important;">Digitized Land Parcels</div>
+                        <div class="small" style="color: #94a3b8 !important;">Digitized Land Parcels</div>
                         <div class="h3 fw-bold mb-0 text-white">{{ total_parcels }} Parcels</div>
                     </div>
                     <div class="mb-3 pb-2 border-bottom border-secondary border-opacity-25">
-                        <div class="small text-muted" style="color: #cbd7cf !important;">Authenticated Clean Titles</div>
-                        <div class="h3 fw-bold mb-0 text-success">{{ verified_parcels }} Verified</div>
+                        <div class="small" style="color: #94a3b8 !important;">Authenticated Clean Titles</div>
+                        <div class="h3 fw-bold mb-0 text-success" style="color: #34d399 !important;">{{ verified_parcels }} Verified</div>
                     </div>
                     <div>
-                        <div class="small text-muted" style="color: #cbd7cf !important;">Active Administrative Districts</div>
+                        <div class="small" style="color: #94a3b8 !important;">Active Administrative Districts</div>
                         <div class="h4 fw-bold mb-0 text-white">{{ active_districts }} Jurisdictions</div>
                     </div>
                 </div>
@@ -281,7 +281,7 @@
     </div>
 
     <div class="col-md-5">
-        <div class="card border-0 p-4 text-white shadow-sm h-100" style="background: var(--earth-forest); border-radius: 10px;">
+        <div class="card border-0 p-4 text-white shadow-sm h-100" style="background: linear-gradient(135deg, #0f172a 0%, #064e3b 100%); border-radius: 12px;">
             <h5 class="fw-bold mb-2">Cadastral Revenue Portal</h5>
             <p class="small opacity-75 mb-4">
                 Are you an administrative officer or citizen looking to enroll and certify a cadastral land unit?

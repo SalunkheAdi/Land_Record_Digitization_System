@@ -1,48 +1,48 @@
 /* ==============================================================
    Intelligent Land Record Digitization & Validation System
-   Natural & Organic Cadastral Palette - INT253 Academic Project
+   Modern Civic Cadastre Theme (Slate Navy & Crisp Emerald)
    ============================================================== */
 
 :root {
-    /* Natural Earth, Forest & Stone Palette */
-    --earth-dark: #1b2820;          /* Deep spruce / dark forest timber */
-    --earth-dark-surface: #24352b;  /* Elevated timber dark */
-    --earth-forest: #2d4c3e;        /* Deep pine / evergreen primary */
-    --earth-forest-hover: #20382d;  /* Dark pine hover */
-    --earth-sage: #507563;          /* Soft sage green */
-    --earth-moss: #769785;          /* Light moss accent */
-    --earth-stone: #f7f6f2;         /* Warm linen / limestone body background */
-    --earth-card: #ffffff;          /* Card background */
-    --earth-card-muted: #f2f0eb;    /* Muted card / table header */
-    --earth-border: #e2ded4;        /* Soft sand / warm stone border */
-    --earth-border-subtle: #edeae2;
-    --earth-text: #232724;          /* Deep mineral charcoal text */
-    --earth-text-muted: #6b6f6a;    /* Weathered stone muted text */
-    --earth-sand: #e8e2d5;          /* Warm sand */
+    /* Modern Slate, Royal Navy & Crisp Emerald Palette */
+    --earth-dark: #0f172a;          /* Deep Slate 900 Sovereign Navy */
+    --earth-dark-surface: #1e293b;  /* Slate 800 Surface */
+    --earth-forest: #059669;        /* Crisp Emerald 600 Primary Accent */
+    --earth-forest-hover: #047857;  /* Deep Emerald 700 Hover */
+    --earth-sage: #0d9488;          /* Modern Teal 600 */
+    --earth-moss: #10b981;          /* Bright Mint/Emerald Accent */
+    --earth-stone: #f8fafc;         /* Crisp Clean Slate 50 Body Background */
+    --earth-card: #ffffff;          /* Pure White Card */
+    --earth-card-muted: #f1f5f9;    /* Clean Slate 100 Secondary Surface */
+    --earth-border: #e2e8f0;        /* Hairline Slate 200 Border */
+    --earth-border-subtle: #f1f5f9; /* Subtle Table/Divider Border */
+    --earth-text: #0f172a;          /* Deep Slate 900 Typography */
+    --earth-text-muted: #64748b;    /* Clean Slate 500 Subtitle/Muted */
+    --earth-sand: #e2e8f0;          /* Clean Neutral Accent */
     
-    /* Natural Status Colors (Muted botanical & mineral tones) */
-    --status-verified-bg: #edf5f0;  /* Laurel leaf tint */
-    --status-verified-text: #21593e;/* Deep laurel */
-    --status-verified-border: #c8e2d3;
+    /* Modern High-Legibility Status Badges */
+    --status-verified-bg: #ecfdf5;  /* Emerald 50 */
+    --status-verified-text: #065f46;/* Emerald 800 */
+    --status-verified-border: #a7f3d0;/* Emerald 200 */
     
-    --status-pending-bg: #fcf6e8;   /* Warm wheat / straw tint */
-    --status-pending-text: #8c631b;  /* Raw umber / warm ochre */
-    --status-pending-border: #edd9b2;
+    --status-pending-bg: #fffbeb;   /* Amber 50 */
+    --status-pending-text: #92400e;  /* Amber 800 */
+    --status-pending-border: #fde68a;/* Amber 200 */
     
-    --status-disputed-bg: #faefed;  /* Terra cotta tint */
-    --status-disputed-text: #963a2c; /* Red clay / burnt sienna */
-    --status-disputed-border: #ebd0cb;
+    --status-disputed-bg: #fef2f2;  /* Rose 50 */
+    --status-disputed-text: #991b1b; /* Rose 800 */
+    --status-disputed-border: #fecaca;/* Rose 200 */
     
-    --status-flagged-bg: #fcf1e6;   /* Desert clay / sandstone */
-    --status-flagged-text: #994e1d;  /* Russet */
-    --status-flagged-border: #ebd4bf;
+    --status-flagged-bg: #fff7ed;   /* Orange 50 */
+    --status-flagged-text: #9a3412;  /* Orange 800 */
+    --status-flagged-border: #fed7aa;/* Orange 200 */
 
-    --status-info-bg: #edf2f5;      /* Slate river water */
-    --status-info-text: #2e5163;    /* Mineral slate */
-    --status-info-border: #c9dbe3;
+    --status-info-bg: #f0f9ff;      /* Sky 50 */
+    --status-info-text: #0369a1;    /* Sky 800 */
+    --status-info-border: #bae6fd;  /* Sky 200 */
 
-    --shadow-soft: 0 2px 6px rgba(35, 39, 36, 0.04), 0 1px 2px rgba(35, 39, 36, 0.03);
-    --shadow-elevated: 0 8px 18px rgba(35, 39, 36, 0.06), 0 2px 4px rgba(35, 39, 36, 0.04);
+    --shadow-soft: 0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+    --shadow-elevated: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
 }
 
 * {
@@ -61,26 +61,28 @@ body {
     flex-direction: column;
 }
 
-/* Header & Navigation Bar */
+/* ==============================================================
+   Header & Navigation Bar
+   ============================================================== */
 .custom-nav {
-    background: var(--earth-dark) !important;
-    border-bottom: 1px solid #2e4235;
-    box-shadow: 0 2px 8px rgba(15, 25, 20, 0.12);
+    background: #0f172a !important;
+    border-bottom: 1px solid #1e293b;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.15);
 }
 
 .navbar-brand {
-    color: #f2f5f3 !important;
+    color: #ffffff !important;
     letter-spacing: -0.01em;
 }
 
 .navbar-brand i {
-    color: #92bfa5 !important;
+    color: #10b981 !important;
 }
 
 .navbar-brand-badge {
-    background: #2a3d31;
-    color: #d1dfd6;
-    border: 1px solid #3c5445;
+    background: #1e293b;
+    color: #6ee7b7;
+    border: 1px solid #334155;
     padding: 3px 9px;
     border-radius: 4px;
     font-size: 0.72rem;
@@ -91,7 +93,7 @@ body {
 }
 
 .nav-link {
-    color: #cbd7cf !important;
+    color: #cbd5e1 !important;
     font-weight: 500;
     font-size: 0.92rem;
     padding: 0.5rem 0.85rem !important;
@@ -101,13 +103,13 @@ body {
 
 .nav-link:hover {
     color: #ffffff !important;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .nav-link.active {
     color: #ffffff !important;
-    background: #25392d;
-    border: 1px solid #385040;
+    background: #1e293b;
+    border: 1px solid #334155;
 }
 
 /* Dropdown styling */
@@ -155,7 +157,7 @@ main.container {
 /* Stat & Metrics Cards */
 .stat-card {
     background: #ffffff;
-    border-radius: 9px;
+    border-radius: 10px;
     padding: 1.25rem 1.4rem;
     box-shadow: var(--shadow-soft);
     border: 1px solid var(--earth-border);
@@ -179,7 +181,7 @@ main.container {
 .stat-number {
     font-size: 1.85rem;
     font-weight: 700;
-    color: var(--earth-forest);
+    color: var(--earth-text);
     margin-top: 0.2rem;
     line-height: 1.2;
 }
@@ -189,30 +191,30 @@ main.container {
     opacity: 0.85;
 }
 
-/* Natural Border Accents for Stat Cards */
+/* Border Accents for Stat Cards */
 .border-stat-total {
-    border-left: 4px solid var(--earth-forest) !important;
+    border-left: 4px solid #059669 !important;
 }
 
 .border-stat-pending {
-    border-left: 4px solid #b8862d !important;
+    border-left: 4px solid #d97706 !important;
 }
 
 .border-stat-disputed {
-    border-left: 4px solid #9e3d2f !important;
+    border-left: 4px solid #dc2626 !important;
 }
 
 .border-stat-score {
-    border-left: 4px solid #386950 !important;
+    border-left: 4px solid #0284c7 !important;
 }
 
-/* Buttons - Natural Tones Override */
+/* Buttons */
 .btn-primary {
     background-color: var(--earth-forest) !important;
     border-color: var(--earth-forest) !important;
     color: #ffffff !important;
     font-weight: 500;
-    box-shadow: 0 1px 3px rgba(35, 55, 45, 0.15);
+    box-shadow: 0 1px 3px rgba(5, 150, 105, 0.2);
     transition: all 0.2s ease;
 }
 
@@ -220,11 +222,13 @@ main.container {
     background-color: var(--earth-forest-hover) !important;
     border-color: var(--earth-forest-hover) !important;
     color: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(5, 150, 105, 0.3);
 }
 
 .btn-outline-primary {
     color: var(--earth-forest) !important;
-    border-color: #8faea0 !important;
+    border-color: var(--earth-forest) !important;
     background-color: transparent !important;
     font-weight: 500;
 }
@@ -244,7 +248,7 @@ main.container {
 .btn-outline-secondary:hover {
     background-color: var(--earth-card-muted) !important;
     color: var(--earth-text) !important;
-    border-color: #cac5b8 !important;
+    border-color: #cbd5e1 !important;
 }
 
 .btn-info {
@@ -254,14 +258,14 @@ main.container {
 }
 
 .btn-info:hover {
-    background-color: #405e4f !important;
-    border-color: #405e4f !important;
+    background-color: #0f766e !important;
+    border-color: #0f766e !important;
     color: #ffffff !important;
 }
 
 .btn-outline-info {
     color: var(--earth-sage) !important;
-    border-color: #9cb5a8 !important;
+    border-color: var(--earth-sage) !important;
 }
 
 .btn-outline-info:hover {
@@ -270,28 +274,28 @@ main.container {
 }
 
 .btn-danger {
-    background-color: #963a2c !important;
-    border-color: #963a2c !important;
+    background-color: #dc2626 !important;
+    border-color: #dc2626 !important;
     color: #ffffff !important;
 }
 
 .btn-danger:hover {
-    background-color: #7b2e22 !important;
-    border-color: #7b2e22 !important;
+    background-color: #b91c1c !important;
+    border-color: #b91c1c !important;
 }
 
 .btn-success {
-    background-color: #245e42 !important;
-    border-color: #245e42 !important;
+    background-color: #059669 !important;
+    border-color: #059669 !important;
     color: #ffffff !important;
 }
 
 .btn-success:hover {
-    background-color: #1b4933 !important;
-    border-color: #1b4933 !important;
+    background-color: #047857 !important;
+    border-color: #047857 !important;
 }
 
-/* Custom Natural Badges */
+/* Custom Badges */
 .badge-verified {
     background-color: var(--status-verified-bg);
     color: var(--status-verified-text);
@@ -356,22 +360,22 @@ main.container {
 }
 
 .badge.bg-secondary {
-    background-color: #636b66 !important;
+    background-color: #64748b !important;
     color: #ffffff !important;
 }
 
 .badge.bg-success {
-    background-color: #245e42 !important;
+    background-color: #059669 !important;
     color: #ffffff !important;
 }
 
 .badge.bg-warning {
-    background-color: #b8862d !important;
+    background-color: #d97706 !important;
     color: #ffffff !important;
 }
 
 .badge.bg-danger {
-    background-color: #963a2c !important;
+    background-color: #dc2626 !important;
     color: #ffffff !important;
 }
 
@@ -383,7 +387,7 @@ main.container {
 /* Standard Table Enhancements */
 .cadastral-table th {
     background-color: var(--earth-card-muted);
-    color: #4b524c;
+    color: #334155;
     font-weight: 600;
     text-transform: uppercase;
     font-size: 0.74rem;
@@ -399,33 +403,34 @@ main.container {
 }
 
 .table-hover tbody tr:hover {
-    background-color: #fbfaf7;
+    background-color: #f1f5f9;
 }
 
 /* Dossier & Detail Card */
 .dossier-card {
     background: #ffffff;
-    border-radius: 10px;
+    border-radius: 12px;
     border: 1px solid var(--earth-border);
     box-shadow: var(--shadow-soft);
     overflow: hidden;
 }
 
 .dossier-header {
-    background: var(--earth-dark-surface);
-    color: #f3f6f4;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #f8fafc;
     padding: 1.5rem 2rem;
-    border-bottom: 1px solid #334739;
+    border-bottom: 1px solid #334155;
 }
 
 .dossier-header h1 {
     letter-spacing: -0.02em;
+    color: #ffffff;
 }
 
 .dossier-header .badge {
-    background-color: #334739 !important;
-    color: #d1dfd6 !important;
-    border: 1px solid #445d4b;
+    background-color: rgba(255, 255, 255, 0.12) !important;
+    color: #cbd5e1 !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .dossier-body {
@@ -447,17 +452,17 @@ main.container {
     font-weight: 500;
 }
 
-/* Live AI Validation Box - Natural Botanical Tone */
+/* Live AI Validation Box */
 .ai-validation-box {
-    background: #f3f6f3;
-    border: 1px solid #c9d8ce;
+    background: #ecfdf5;
+    border: 1px solid #a7f3d0;
     border-radius: 8px;
     padding: 1.35rem;
     margin-top: 1.5rem;
 }
 
 .ai-validation-box h5 {
-    color: var(--earth-forest);
+    color: #065f46;
     font-weight: 700;
 }
 
@@ -471,16 +476,16 @@ main.container {
 }
 
 .form-control:focus, .form-select:focus {
-    border-color: var(--earth-sage);
-    box-shadow: 0 0 0 0.2rem rgba(80, 117, 99, 0.15);
+    border-color: var(--earth-forest);
+    box-shadow: 0 0 0 0.2rem rgba(5, 150, 105, 0.15);
 }
 
 .form-label {
-    color: #353a36;
+    color: #334155;
     margin-bottom: 0.3rem;
 }
 
-/* Natural Alerts */
+/* Alerts */
 .alert-success {
     background-color: var(--status-verified-bg);
     color: var(--status-verified-text);
@@ -507,12 +512,12 @@ main.container {
 
 /* Breadcrumb */
 .breadcrumb-item a {
-    color: var(--earth-sage);
+    color: var(--earth-forest);
     text-decoration: none;
 }
 
 .breadcrumb-item a:hover {
-    color: var(--earth-forest);
+    color: var(--earth-forest-hover);
     text-decoration: underline;
 }
 
@@ -520,21 +525,21 @@ main.container {
     color: var(--earth-text-muted);
 }
 
-/* Text utility overrides for cohesive earth tones */
+/* Text utility overrides */
 .text-primary {
     color: var(--earth-forest) !important;
 }
 
 .text-success {
-    color: #21593e !important;
+    color: #059669 !important;
 }
 
 .text-warning {
-    color: #9c6b1f !important;
+    color: #d97706 !important;
 }
 
 .text-danger {
-    color: #963a2c !important;
+    color: #dc2626 !important;
 }
 
 .text-info {
@@ -547,16 +552,16 @@ main.container {
 
 /* Footer */
 footer {
-    background: var(--earth-dark);
-    color: #9ab0a3;
-    padding: 1.6rem 0;
+    background: #0f172a;
+    color: #94a3b8;
+    padding: 1.8rem 0;
     margin-top: auto;
     font-size: 0.85rem;
-    border-top: 1px solid #2b3d32;
+    border-top: 1px solid #1e293b;
 }
 
 footer strong {
-    color: #d1dfd6;
+    color: #f8fafc;
 }
 
 /* ==============================================================
@@ -580,29 +585,29 @@ footer strong {
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #1B2820 0%, #2D4C3E 100%);
+    background: linear-gradient(135deg, #0f172a 0%, #059669 100%);
     color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 24px rgba(27, 40, 32, 0.35);
-    border: 2px solid rgba(247, 246, 242, 0.25);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.35);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .ai-bot-btn:hover {
     transform: scale(1.08);
-    box-shadow: 0 12px 30px rgba(27, 40, 32, 0.45);
+    box-shadow: 0 12px 30px rgba(5, 150, 105, 0.45);
 }
 
 .ai-bot-badge-pill {
-    background: #1B2820;
-    color: #F7F6F2;
+    background: #0f172a;
+    color: #f8fafc;
     padding: 6px 14px;
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 600;
-    border: 1px solid #3c5445;
+    border: 1px solid #334155;
     box-shadow: 0 4px 14px rgba(0,0,0,0.18);
     display: flex;
     align-items: center;
@@ -612,21 +617,21 @@ footer strong {
 .ai-pulse-dot {
     width: 8px;
     height: 8px;
-    background-color: #28a745;
+    background-color: #10b981;
     border-radius: 50%;
-    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
-    animation: pulse-green 1.8s infinite;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    animation: pulse-emerald 1.8s infinite;
 }
 
-@keyframes pulse-green {
+@keyframes pulse-emerald {
     0% {
-        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
     }
     70% {
-        box-shadow: 0 0 0 7px rgba(40, 167, 69, 0);
+        box-shadow: 0 0 0 7px rgba(16, 185, 129, 0);
     }
     100% {
-        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
     }
 }
 
@@ -638,10 +643,10 @@ footer strong {
     max-width: calc(100vw - 32px);
     height: 540px;
     max-height: calc(100vh - 120px);
-    background: #FFFFFF;
+    background: #ffffff;
     border-radius: 14px;
-    border: 1px solid #D2DBCF;
-    box-shadow: 0 16px 40px rgba(27, 40, 32, 0.22);
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.2);
     z-index: 1041;
     display: none;
     flex-direction: column;
@@ -665,8 +670,8 @@ footer strong {
 }
 
 .ai-bot-header {
-    background: linear-gradient(135deg, #1B2820 0%, #2D4C3E 100%);
-    color: #F7F6F2;
+    background: linear-gradient(135deg, #0f172a 0%, #064e3b 100%);
+    color: #ffffff;
     padding: 14px 16px;
     display: flex;
     align-items: center;
@@ -678,7 +683,7 @@ footer strong {
     flex: 1;
     padding: 16px;
     overflow-y: auto;
-    background: #F8FAF8;
+    background: #f8fafc;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -695,17 +700,17 @@ footer strong {
 
 .ai-msg-bot {
     align-self: flex-start;
-    background: #FFFFFF;
-    color: #232724;
-    border: 1px solid #E2DED4;
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
     border-bottom-left-radius: 4px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 
 .ai-msg-user {
     align-self: flex-end;
-    background: #2D4C3E;
-    color: #FFFFFF;
+    background: #0f766e;
+    color: #ffffff;
     border-bottom-right-radius: 4px;
 }
 
@@ -718,9 +723,9 @@ footer strong {
 
 .ai-chip {
     font-size: 0.74rem;
-    background: #EDF3EF;
-    color: #24352B;
-    border: 1px solid #D1DFD6;
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
     padding: 4px 10px;
     border-radius: 12px;
     cursor: pointer;
@@ -728,20 +733,20 @@ footer strong {
 }
 
 .ai-chip:hover {
-    background: #2D4C3E;
-    color: #FFFFFF;
-    border-color: #2D4C3E;
+    background: #059669;
+    color: #ffffff;
+    border-color: #059669;
 }
 
 .ai-bot-footer {
     padding: 12px;
-    background: #FFFFFF;
-    border-top: 1px solid #E2DED4;
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
 }
 
 .ai-typing-indicator {
     font-size: 0.78rem;
-    color: #6B6F6A;
+    color: #64748b;
     font-style: italic;
     display: none;
     align-items: center;
@@ -755,7 +760,7 @@ footer strong {
 .theme-toggle-btn {
     border-color: rgba(255, 255, 255, 0.25) !important;
     background: rgba(255, 255, 255, 0.08) !important;
-    color: #f2f5f3 !important;
+    color: #f8fafc !important;
     padding: 0.32rem 0.72rem;
     border-radius: 20px;
     font-size: 0.84rem;
@@ -772,49 +777,49 @@ footer strong {
 }
 
 /* ==============================================================
-   Dark Mode Theme System (Natural Forest Nocturnal Palette)
+   Dark Mode Theme System (Midnight Obsidian & Modern Emerald)
    Activated via [data-bs-theme="dark"]
    ============================================================== */
 [data-bs-theme="dark"] {
-    /* Nocturnal Earth & Forest Palette */
-    --earth-dark: #0c140f;          /* Deep nocturnal evergreen */
-    --earth-dark-surface: #121d16;  /* Elevated timber dark */
-    --earth-forest: #3d6854;        /* Vibrant forest pine */
-    --earth-forest-hover: #4e826b;  /* Forest pine hover */
-    --earth-sage: #6b9982;          /* Sage green */
-    --earth-moss: #8db59f;          /* Light moss accent */
-    --earth-stone: #101713;         /* Dark mossy stone background */
-    --earth-card: #16221b;          /* Card surface */
-    --earth-card-muted: #1c2b22;    /* Secondary card / header background */
-    --earth-border: #26382e;        /* Dark moss border */
-    --earth-border-subtle: #1d2c23; /* Subtle dark border */
-    --earth-text: #e2e8e4;          /* Soft ivory text */
-    --earth-text-muted: #95a39a;    /* Muted sage text */
-    --earth-sand: #293d31;          /* Dark sand */
+    /* Modern Midnight Navy & Obsidian Palette */
+    --earth-dark: #070a10;          /* Deepest Midnight Obsidian */
+    --earth-dark-surface: #0f172a;  /* Slate 900 Surface */
+    --earth-forest: #10b981;        /* Radiant Modern Emerald */
+    --earth-forest-hover: #34d399;  /* Radiant Mint Hover */
+    --earth-sage: #14b8a6;          /* Modern Teal Accent */
+    --earth-moss: #34d399;          /* Light Mint */
+    --earth-stone: #0b0f19;         /* Midnight Obsidian Body */
+    --earth-card: #111827;          /* Slate 900 Card Surface */
+    --earth-card-muted: #162032;    /* Slate 850 Header Surface */
+    --earth-border: #1f293d;        /* Sleek Hairline Dark Border */
+    --earth-border-subtle: #192233; /* Dark Divider */
+    --earth-text: #f8fafc;          /* Pure Crisp Slate 50 Text */
+    --earth-text-muted: #94a3b8;    /* Crisp Slate 400 Muted */
+    --earth-sand: #1f293d;          /* Dark Accent */
     
-    /* Status Badges & Indicators (Nocturnal High-Legibility) */
-    --status-verified-bg: #143323;
-    --status-verified-text: #66d99e;
-    --status-verified-border: #1e4a33;
+    /* Modern Dark Status Badges */
+    --status-verified-bg: rgba(16, 185, 129, 0.12);
+    --status-verified-text: #34d399;
+    --status-verified-border: rgba(16, 185, 129, 0.28);
     
-    --status-pending-bg: #382c12;
-    --status-pending-text: #f0c15d;
-    --status-pending-border: #52401a;
+    --status-pending-bg: rgba(245, 158, 11, 0.12);
+    --status-pending-text: #fbbf24;
+    --status-pending-border: rgba(245, 158, 11, 0.28);
     
-    --status-disputed-bg: #3b1915;
-    --status-disputed-text: #f08373;
-    --status-disputed-border: #572520;
+    --status-disputed-bg: rgba(239, 68, 68, 0.12);
+    --status-disputed-text: #f87171;
+    --status-disputed-border: rgba(239, 68, 68, 0.28);
     
-    --status-flagged-bg: #3a2213;
-    --status-flagged-text: #f09e5e;
-    --status-flagged-border: #57331b;
+    --status-flagged-bg: rgba(249, 115, 22, 0.12);
+    --status-flagged-text: #fb923c;
+    --status-flagged-border: rgba(249, 115, 22, 0.28);
 
-    --status-info-bg: #152833;
-    --status-info-text: #70b3d6;
-    --status-info-border: #1f3c4d;
+    --status-info-bg: rgba(56, 189, 248, 0.12);
+    --status-info-text: #38bdf8;
+    --status-info-border: rgba(56, 189, 248, 0.28);
 
-    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.45);
+    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.35);
+    --shadow-elevated: 0 12px 30px rgba(0, 0, 0, 0.5);
 
     /* Bootstrap native variable overrides */
     --bs-body-bg: var(--earth-stone);
@@ -829,6 +834,11 @@ footer strong {
 [data-bs-theme="dark"] body {
     background-color: var(--earth-stone) !important;
     color: var(--earth-text) !important;
+}
+
+[data-bs-theme="dark"] .custom-nav {
+    background: #070a10 !important;
+    border-bottom: 1px solid #1f293d !important;
 }
 
 /* Dark Mode Cards & Surfaces */
@@ -871,12 +881,17 @@ footer strong {
 }
 
 [data-bs-theme="dark"] .stat-number {
-    color: #6ed9a5 !important;
+    color: #f8fafc !important;
 }
 
 [data-bs-theme="dark"] .dossier-card {
     background: var(--earth-card) !important;
     border-color: var(--earth-border) !important;
+}
+
+[data-bs-theme="dark"] .dossier-header {
+    background: linear-gradient(135deg, #070a10 0%, #0f172a 100%) !important;
+    border-bottom: 1px solid #1f293d !important;
 }
 
 [data-bs-theme="dark"] .info-label {
@@ -889,19 +904,19 @@ footer strong {
 
 /* Dark Mode Text Utility Overrides */
 [data-bs-theme="dark"] .text-dark {
-    color: #e2e8e4 !important;
+    color: #f8fafc !important;
 }
 
 [data-bs-theme="dark"] .text-muted {
-    color: #95a39a !important;
+    color: #94a3b8 !important;
 }
 
 [data-bs-theme="dark"] .text-secondary {
-    color: #a4b3a9 !important;
+    color: #94a3b8 !important;
 }
 
 [data-bs-theme="dark"] .text-body {
-    color: #e2e8e4 !important;
+    color: #f8fafc !important;
 }
 
 /* Dark Mode Tables */
@@ -912,7 +927,7 @@ footer strong {
 
 [data-bs-theme="dark"] .cadastral-table th {
     background-color: var(--earth-card-muted) !important;
-    color: #cbd7cf !important;
+    color: #cbd5e1 !important;
     border-color: var(--earth-border) !important;
 }
 
@@ -935,21 +950,21 @@ footer strong {
 /* Dark Mode Forms & Inputs */
 [data-bs-theme="dark"] .form-control,
 [data-bs-theme="dark"] .form-select {
-    background-color: #121c16 !important;
-    color: #e2e8e4 !important;
+    background-color: #0b1120 !important;
+    color: #f8fafc !important;
     border-color: var(--earth-border) !important;
 }
 
 [data-bs-theme="dark"] .form-control:focus,
 [data-bs-theme="dark"] .form-select:focus {
-    background-color: #17241c !important;
+    background-color: #111827 !important;
     color: #ffffff !important;
-    border-color: var(--earth-sage) !important;
-    box-shadow: 0 0 0 0.2rem rgba(107, 153, 130, 0.25) !important;
+    border-color: #10b981 !important;
+    box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25) !important;
 }
 
 [data-bs-theme="dark"] .form-control::placeholder {
-    color: #65756b !important;
+    color: #64748b !important;
 }
 
 [data-bs-theme="dark"] .input-group-text {
@@ -959,23 +974,23 @@ footer strong {
 }
 
 [data-bs-theme="dark"] .form-label {
-    color: #cbd7cf !important;
+    color: #cbd5e1 !important;
 }
 
 /* Dark Mode Dropdowns */
 [data-bs-theme="dark"] .dropdown-menu {
-    background-color: #18241d !important;
+    background-color: #111827 !important;
     border-color: var(--earth-border) !important;
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5) !important;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6) !important;
 }
 
 [data-bs-theme="dark"] .dropdown-item {
-    color: #dbe4de !important;
+    color: #e2e8f0 !important;
 }
 
 [data-bs-theme="dark"] .dropdown-item:hover,
 [data-bs-theme="dark"] .dropdown-item:focus {
-    background-color: #24382c !important;
+    background-color: #1e293b !important;
     color: #ffffff !important;
 }
 
@@ -985,97 +1000,113 @@ footer strong {
 
 /* Dark Mode AI Validation Box */
 [data-bs-theme="dark"] .ai-validation-box {
-    background: #142219 !important;
-    border-color: #274030 !important;
+    background: rgba(16, 185, 129, 0.08) !important;
+    border-color: rgba(16, 185, 129, 0.25) !important;
 }
 
 [data-bs-theme="dark"] .ai-validation-box h5 {
-    color: #72cca1 !important;
+    color: #34d399 !important;
 }
 
 /* Dark Mode Floating AI Bot Modal */
 [data-bs-theme="dark"] .ai-bot-modal {
-    background: #15221a !important;
-    border-color: #2b3f32 !important;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5) !important;
+    background: #111827 !important;
+    border-color: #1f293d !important;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6) !important;
 }
 
 [data-bs-theme="dark"] .ai-bot-messages {
-    background: #0f1712 !important;
+    background: #0b0f19 !important;
 }
 
 [data-bs-theme="dark"] .ai-msg-bot {
-    background: #1c2b21 !important;
-    color: #e2e8e4 !important;
-    border-color: #283c2e !important;
+    background: #162032 !important;
+    color: #f8fafc !important;
+    border-color: #1f293d !important;
+}
+
+[data-bs-theme="dark"] .ai-msg-user {
+    background: #059669 !important;
+    color: #ffffff !important;
 }
 
 [data-bs-theme="dark"] .ai-chip {
-    background: #19271e !important;
-    color: #b7cebf !important;
-    border-color: #283e30 !important;
+    background: #162032 !important;
+    color: #cbd5e1 !important;
+    border-color: #283548 !important;
 }
 
 [data-bs-theme="dark"] .ai-chip:hover {
-    background: #2d4c3e !important;
+    background: #10b981 !important;
     color: #ffffff !important;
-    border-color: #3d6854 !important;
+    border-color: #10b981 !important;
 }
 
 [data-bs-theme="dark"] .ai-bot-footer {
-    background: #15221a !important;
-    border-color: #26382e !important;
+    background: #111827 !important;
+    border-color: #1f293d !important;
 }
 
 [data-bs-theme="dark"] #aiAgentInput {
-    background-color: #101712 !important;
-    color: #e2e8e4 !important;
-    border-color: #2b3f32 !important;
+    background-color: #0b0f19 !important;
+    color: #f8fafc !important;
+    border-color: #1f293d !important;
 }
 
 [data-bs-theme="dark"] #aiAgentInput:focus {
-    border-color: #4e826b !important;
+    border-color: #10b981 !important;
 }
 
 [data-bs-theme="dark"] .ai-typing-indicator {
-    color: #8c9e92 !important;
+    color: #94a3b8 !important;
 }
 
 /* Dark Mode Stat Card Accent Borders */
 [data-bs-theme="dark"] .border-stat-total {
-    border-left: 4px solid #508a6e !important;
+    border-left: 4px solid #10b981 !important;
 }
 
 [data-bs-theme="dark"] .border-stat-pending {
-    border-left: 4px solid #d4a037 !important;
+    border-left: 4px solid #f59e0b !important;
 }
 
 [data-bs-theme="dark"] .border-stat-disputed {
-    border-left: 4px solid #cf5342 !important;
+    border-left: 4px solid #ef4444 !important;
 }
 
 [data-bs-theme="dark"] .border-stat-score {
-    border-left: 4px solid #4a9e75 !important;
+    border-left: 4px solid #38bdf8 !important;
 }
 
-/* Dark Mode Button Outline Tweaks */
+/* Dark Mode Buttons */
+[data-bs-theme="dark"] .btn-primary {
+    background-color: #059669 !important;
+    border-color: #059669 !important;
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .btn-primary:hover {
+    background-color: #047857 !important;
+    border-color: #047857 !important;
+}
+
 [data-bs-theme="dark"] .btn-outline-primary {
-    color: #72cca1 !important;
-    border-color: #4a755f !important;
+    color: #34d399 !important;
+    border-color: #059669 !important;
 }
 
 [data-bs-theme="dark"] .btn-outline-primary:hover {
-    background-color: var(--earth-forest) !important;
+    background-color: #059669 !important;
     color: #ffffff !important;
 }
 
 [data-bs-theme="dark"] .btn-outline-secondary {
-    color: #cbd7cf !important;
-    border-color: #384f41 !important;
+    color: #cbd5e1 !important;
+    border-color: #283548 !important;
 }
 
 [data-bs-theme="dark"] .btn-outline-secondary:hover {
-    background-color: #24382c !important;
+    background-color: #1f293d !important;
     color: #ffffff !important;
 }
 
@@ -1090,4 +1121,10 @@ footer strong {
 
 [data-bs-theme="dark"] .border-top {
     border-color: var(--earth-border) !important;
+}
+
+[data-bs-theme="dark"] footer {
+    background: #070a10 !important;
+    color: #94a3b8 !important;
+    border-top: 1px solid #1f293d !important;
 }
