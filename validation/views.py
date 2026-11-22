@@ -9,6 +9,7 @@ from .forms import ValidationAuditForm
 from .services import IntelligentValidationEngine
 import uuid
 import json
+import re
 
 
 @login_required
@@ -168,35 +169,9 @@ def ai_agent_chat_api(request):
         query = request.GET.get('query', '').strip()
 
     q_lower = query.lower()
+    words = set(re.findall(r'\b\w+\b', q_lower))
 
-    # 1. Explanation of AI Risk Score Bases / Calculation
-    if any(k in q_lower for k in ['basis', 'bases', 'calculate', 'score', 'formula', 'criteria', 'how', 'rule', 'weight']):
-        response_text = (
-            "<strong>🧠 Cadastral AI Risk Assessment Methodology:</strong><br><br>"
-            "The AI Compliance Engine starts at a baseline of <strong>100 Points</strong> and performs 5 automated heuristic audits:<br><br>"
-            "<strong>1. Title Deed & Survey Number Syntax (15 Pts):</strong> Validates standard cadastral regex <code>^[A-Z0-9\\-/\\.]+$</code>.<br>"
-            "<strong>2. GPS Centroid Geospatial Sanity (20 Pts):</strong> Verifies physical latitude/longitude coordinate bounding.<br>"
-            "<strong>3. Zoning & Area Thresholds (15 - 25 Pts):</strong> Flags over-sized residential plots (>15k sq m) or unauthorized agricultural fragmentation (<200 sq m).<br>"
-            "<strong>4. Circle Rate Valuation vs. Area (10 Pts):</strong> Identifies stamp duty undervaluation (&lt; ₹5/sqm) or hyper-inflated speculative rates (&gt; ₹500k/sqm).<br>"
-            "<strong>5. Active Litigation & Court Injunctions (35 Pts):</strong> Immediate 35-point penalty if an active court stay order or dispute flag exists.<br><br>"
-            "<strong>⚖️ Risk Category & Determination Matrix:</strong><br>"
-            "• <span class='badge bg-success'>80% - 100%</span> <strong>Low Risk:</strong> Clean Title &rarr; <em>Approved</em><br>"
-            "• <span class='badge bg-warning text-dark'>50% - 79%</span> <strong>Medium Risk:</strong> Minor Anomaly &rarr; <em>Conditional</em><br>"
-            "• <span class='badge bg-danger'>&lt; 50%</span> <strong>High Risk:</strong> Critical Discrepancy &rarr; <em>Rejected</em>"
-        )
-        return JsonResponse({
-            'status': 'success',
-            'intent': 'scoring_explanation',
-            'response': response_text,
-            'quick_suggestions': [
-                "Inspect SY-99-DISP (35% High Risk)",
-                "Inspect SY-401-ECO (68% Medium Risk)",
-                "Inspect SY-104-2B (96% Clean Title)",
-                "List all high risk parcels"
-            ]
-        })
-
-    # 2. Specific Survey Number Check (e.g. SY-99-DISP, SY-401-ECO, SY-104-2B, SY-55-1C, etc.)
+    # 1. First priority: Check if a specific parcel survey or deed number is targeted
     matched_parcel = None
     all_parcels = LandParcel.objects.select_related('owner').all()
     for p in all_parcels:
@@ -241,8 +216,41 @@ def ai_agent_chat_api(request):
             ]
         })
 
+    # 2. Check if user is asking about how the AI score is calculated / methodology
+    is_scoring_query = (
+        any(w in words for w in ['basis', 'bases', 'formula', 'criteria', 'methodology', 'weight', 'weights', 'calculate', 'calculated']) or
+        ('how' in words and any(w in words for w in ['score', 'work', 'works', 'rate', 'audit'])) or
+        ('score' in words and 'calculated' in words) or
+        ('scoring' in q_lower)
+    )
+    if is_scoring_query:
+        response_text = (
+            "<strong>🧠 Cadastral AI Risk Assessment Methodology:</strong><br><br>"
+            "The AI Compliance Engine starts at a baseline of <strong>100 Points</strong> and performs 5 automated heuristic audits:<br><br>"
+            "<strong>1. Title Deed & Survey Number Syntax (15 Pts):</strong> Validates standard cadastral regex <code>^[A-Z0-9\\-/\\.]+$</code>.<br>"
+            "<strong>2. GPS Centroid Geospatial Sanity (20 Pts):</strong> Verifies physical latitude/longitude coordinate bounding.<br>"
+            "<strong>3. Zoning & Area Thresholds (15 - 25 Pts):</strong> Flags over-sized residential plots (>15k sq m) or unauthorized agricultural fragmentation (<200 sq m).<br>"
+            "<strong>4. Circle Rate Valuation vs. Area (10 Pts):</strong> Identifies stamp duty undervaluation (&lt; ₹5/sqm) or hyper-inflated speculative rates (&gt; ₹500k/sqm).<br>"
+            "<strong>5. Active Litigation & Court Injunctions (35 Pts):</strong> Immediate 35-point penalty if an active court stay order or dispute flag exists.<br><br>"
+            "<strong>⚖️ Risk Category & Determination Matrix:</strong><br>"
+            "• <span class='badge bg-success'>80% - 100%</span> <strong>Low Risk:</strong> Clean Title &rarr; <em>Approved</em><br>"
+            "• <span class='badge bg-warning text-dark'>50% - 79%</span> <strong>Medium Risk:</strong> Minor Anomaly &rarr; <em>Conditional</em><br>"
+            "• <span class='badge bg-danger'>&lt; 50%</span> <strong>High Risk:</strong> Critical Discrepancy &rarr; <em>Rejected</em>"
+        )
+        return JsonResponse({
+            'status': 'success',
+            'intent': 'scoring_explanation',
+            'response': response_text,
+            'quick_suggestions': [
+                "Inspect SY-99-DISP (35% High Risk)",
+                "Inspect SY-401-ECO (68% Medium Risk)",
+                "Inspect SY-104-2B (96% Clean Title)",
+                "Show all high risk parcels"
+            ]
+        })
+
     # 3. High Risk / Disputed / Rejected Parcels query
-    if any(k in q_lower for k in ['high', 'dispute', 'rejected', 'danger', 'critical', '35%']):
+    if any(w in words for w in ['high', 'dispute', 'disputed', 'rejected', 'danger', 'critical', '35']):
         high_risk_parcels = LandParcel.objects.filter(
             Q(is_disputed=True) | Q(digitization_status='DISPUTED')
         ).select_related('owner')[:5]
@@ -268,7 +276,7 @@ def ai_agent_chat_api(request):
         })
 
     # 4. Clean / Approved Parcels query
-    if any(k in q_lower for k in ['clean', 'approved', 'low', 'verified', '96%']):
+    if any(w in words for w in ['clean', 'approved', 'low', 'verified', '96']):
         verified_parcels = LandParcel.objects.filter(
             digitization_status='VERIFIED', is_disputed=False
         ).select_related('owner')[:4]
