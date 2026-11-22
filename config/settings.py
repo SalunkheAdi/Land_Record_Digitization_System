@@ -104,6 +104,12 @@ else:
         }
     }
 
+# Session engine: signed cookies guarantee session state across serverless containers
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_AGE = 86400 * 14  # 14 days
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {

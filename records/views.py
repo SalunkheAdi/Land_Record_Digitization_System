@@ -40,6 +40,83 @@ def home_view(request):
     return render(request, 'records/home.html', context)
 
 
+from django.core import signing
+
+VAULT_COOKIE_NAME = 'geocadastre_user_vault'
+
+
+def _sync_vault_users_from_request(request):
+    """
+    On stateless/serverless environments (e.g. Vercel Lambda containers),
+    restores user accounts registered in this browser from the cryptographically
+    signed vault cookie into the current container's SQLite instance if not already present.
+    """
+    cookie_val = request.COOKIES.get(VAULT_COOKIE_NAME)
+    if not cookie_val:
+        return
+    try:
+        users_list = signing.loads(cookie_val, max_age=86400 * 30)  # 30 days validity
+        if not isinstance(users_list, list):
+            users_list = [users_list]
+        for u_data in users_list:
+            uname = (u_data.get('username') or '').strip()
+            if not uname:
+                continue
+            if not User.objects.filter(username__iexact=uname).exists():
+                user_obj = User(
+                    username=uname,
+                    email=(u_data.get('email') or '').strip().lower(),
+                    first_name=(u_data.get('first_name') or '').strip(),
+                    last_name=(u_data.get('last_name') or '').strip(),
+                    password=u_data.get('password_hash', ''),
+                    is_active=True,
+                )
+                user_obj.save()
+    except Exception:
+        pass
+
+
+def _add_user_to_vault_cookie(request, response, user):
+    """
+    Appends the user's credentials to the cryptographically signed cookie
+    so they persist seamlessly across serverless container reloads.
+    """
+    cookie_val = request.COOKIES.get(VAULT_COOKIE_NAME)
+    users_list = []
+    if cookie_val:
+        try:
+            users_list = signing.loads(cookie_val, max_age=86400 * 30)
+            if not isinstance(users_list, list):
+                users_list = [users_list]
+        except Exception:
+            users_list = []
+
+    user_data = {
+        'username': user.username,
+        'email': user.email,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'password_hash': user.password,
+    }
+    # Keep up to 10 recent users, removing duplicates case-insensitively
+    users_list = [u for u in users_list if (u.get('username') or '').lower() != user.username.lower()]
+    users_list.append(user_data)
+    if len(users_list) > 10:
+        users_list = users_list[-10:]
+
+    try:
+        signed_token = signing.dumps(users_list)
+        response.set_cookie(
+            VAULT_COOKIE_NAME,
+            signed_token,
+            max_age=86400 * 30,  # 30 days
+            httponly=True,
+            samesite='Lax'
+        )
+    except Exception:
+        pass
+
+
 def signup_view(request):
     """
     Public Sign Up / Registration View:
@@ -60,7 +137,9 @@ def signup_view(request):
                 request,
                 f"Welcome to GeoCadastre, {display_name}! Your account has been registered successfully."
             )
-            return redirect('dashboard')
+            response = redirect('dashboard')
+            _add_user_to_vault_cookie(request, response, user)
+            return response
         else:
             messages.error(request, "Please correct the errors below to complete your registration.")
     else:
@@ -73,11 +152,15 @@ def login_view(request):
     """
     Public Sign In View:
     Authenticates registered users via Username or Email with password.
+    Supports case-insensitive lookups, trimmed whitespace, and multi-container persistence.
     Redirects to the requested 'next' URL or the main operational Dashboard.
     """
     if request.user.is_authenticated:
         messages.info(request, "You are already signed in.")
         return redirect('dashboard')
+
+    # Ensure any user registered in this browser on other serverless instances is available
+    _sync_vault_users_from_request(request)
 
     next_url = request.GET.get('next') or request.POST.get('next', '')
 
@@ -87,24 +170,35 @@ def login_view(request):
             identifier = form.cleaned_data['username'].strip()
             password = form.cleaned_data['password']
 
-            # Attempt authentication directly by username
+            # 1. Attempt authentication directly by exact username
             user = authenticate(request, username=identifier, password=password)
 
-            # If not authenticated, check if the identifier was entered as an email address
+            # 2. If not authenticated, attempt case-insensitive username lookup
             if user is None:
                 try:
-                    matched_user = User.objects.get(email__iexact=identifier)
-                    user = authenticate(request, username=matched_user.username, password=password)
-                except (User.DoesNotExist, User.MultipleObjectsReturned):
+                    matched_user = User.objects.filter(username__iexact=identifier).first()
+                    if matched_user:
+                        user = authenticate(request, username=matched_user.username, password=password)
+                except Exception:
+                    user = None
+
+            # 3. If still not authenticated, attempt case-insensitive email lookup
+            if user is None:
+                try:
+                    matched_user = User.objects.filter(email__iexact=identifier).first()
+                    if matched_user:
+                        user = authenticate(request, username=matched_user.username, password=password)
+                except Exception:
                     user = None
 
             if user is not None:
                 login(request, user)
                 display_name = user.first_name or user.username
                 messages.success(request, f"Welcome back, {display_name}!")
-                if next_url and next_url.startswith('/'):
-                    return redirect(next_url)
-                return redirect('dashboard')
+                target_url = next_url if (next_url and next_url.startswith('/')) else 'dashboard'
+                response = redirect(target_url)
+                _add_user_to_vault_cookie(request, response, user)
+                return response
             else:
                 messages.error(request, "Invalid username or password. Please verify your credentials.")
     else:

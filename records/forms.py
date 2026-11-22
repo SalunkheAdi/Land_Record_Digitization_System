@@ -58,16 +58,26 @@ class UserRegistrationForm(forms.ModelForm):
         }
 
     def clean_username(self):
-        username = self.cleaned_data.get('username')
+        username = self.cleaned_data.get('username', '').strip()
+        if not username:
+            raise forms.ValidationError("Please provide a valid username.")
         if User.objects.filter(username__iexact=username).exists():
             raise forms.ValidationError("This username is already taken. Please choose another.")
         return username
 
     def clean_email(self):
-        email = self.cleaned_data.get('email')
+        email = self.cleaned_data.get('email', '').strip().lower()
+        if not email:
+            raise forms.ValidationError("Please provide a valid email address.")
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError("An account with this email address already exists.")
         return email
+
+    def clean_first_name(self):
+        return self.cleaned_data.get('first_name', '').strip()
+
+    def clean_last_name(self):
+        return self.cleaned_data.get('last_name', '').strip()
 
     def clean(self):
         cleaned_data = super().clean()
@@ -80,7 +90,12 @@ class UserRegistrationForm(forms.ModelForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
+        user.username = self.cleaned_data['username'].strip()
+        user.email = self.cleaned_data['email'].strip().lower()
+        user.first_name = self.cleaned_data['first_name'].strip()
+        user.last_name = self.cleaned_data['last_name'].strip()
         user.set_password(self.cleaned_data['password'])
+        user.is_active = True
         if commit:
             user.save()
         return user
