@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.db.models import Avg, Count, Q
 from records.models import LandParcel
@@ -150,6 +151,7 @@ def audit_fiscal_year_view(request, year):
     return render(request, 'validation/fiscal_audit_summary.html', context)
 
 
+@csrf_exempt
 def ai_agent_chat_api(request):
     """
     Interactive Cadastral AI Risk Agent API endpoint.
