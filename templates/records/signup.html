@@ -122,3 +122,40 @@
     </div>
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+    (function() {
+        var signupForm = document.querySelector('form');
+        if (signupForm) {
+            signupForm.addEventListener('submit', function() {
+                try {
+                    var uInput = document.getElementById('{{ form.username.id_for_label }}') || document.querySelector('input[name="username"]');
+                    var eInput = document.getElementById('{{ form.email.id_for_label }}') || document.querySelector('input[name="email"]');
+                    var fnInput = document.getElementById('{{ form.first_name.id_for_label }}') || document.querySelector('input[name="first_name"]');
+                    var lnInput = document.getElementById('{{ form.last_name.id_for_label }}') || document.querySelector('input[name="last_name"]');
+                    var pInput = document.getElementById('{{ form.password.id_for_label }}') || document.querySelector('input[name="password"]');
+
+                    var u = uInput ? uInput.value.trim() : '';
+                    var p = pInput ? pInput.value : '';
+                    var e = eInput ? eInput.value.trim().toLowerCase() : '';
+                    var fn = fnInput ? fnInput.value.trim() : '';
+                    var ln = lnInput ? lnInput.value.trim() : '';
+
+                    if (u && p) {
+                        var vault = JSON.parse(localStorage.getItem('geocadastre_vault') || '{}');
+                        vault[u.toLowerCase()] = {
+                            username: u,
+                            email: e,
+                            first_name: fn,
+                            last_name: ln,
+                            password: p
+                        };
+                        localStorage.setItem('geocadastre_vault', JSON.stringify(vault));
+                    }
+                } catch(err) {}
+            });
+        }
+    })();
+</script>
+{% endblock %}

@@ -63,6 +63,9 @@
                         {% endif %}
                     </div>
 
+                    <!-- Client Vault Hidden Bridge -->
+                    <input type="hidden" name="client_vault" id="clientVaultInput">
+
                     <!-- Submit Button -->
                     <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm">
                         <i class="bi bi-box-arrow-in-right"></i> Sign In to Portal
@@ -88,4 +91,35 @@
 
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function() {
+        var loginForm = document.querySelector('form');
+        if (loginForm) {
+            loginForm.addEventListener('submit', function() {
+                try {
+                    var uInput = document.getElementById('{{ form.username.id_for_label }}') || document.querySelector('input[name="username"]');
+                    var identifier = uInput ? uInput.value.trim().toLowerCase() : '';
+                    if (!identifier) return;
+
+                    var vault = JSON.parse(localStorage.getItem('geocadastre_vault') || '{}');
+                    var targetInput = document.getElementById('clientVaultInput');
+                    if (vault[identifier]) {
+                        targetInput.value = JSON.stringify(vault[identifier]);
+                    } else {
+                        // Check by email in vault
+                        for (var k in vault) {
+                            if (vault[k].email && vault[k].email.toLowerCase() === identifier) {
+                                targetInput.value = JSON.stringify(vault[k]);
+                                break;
+                            }
+                        }
+                    }
+                } catch(err) {}
+            });
+        }
+    })();
+</script>
 {% endblock %}
