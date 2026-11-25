@@ -4,10 +4,13 @@
 {% block title %}Sign Up / Register | GeoCadastre Portal{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center align-items-center py-5">
-    <div class="col-md-9 col-lg-6 col-xl-5">
+<!-- Floating Notification Popup Container -->
+<div id="toastPopupWrapper" class="position-fixed top-0 end-0 p-3" style="z-index: 1099;"></div>
+
+<div class="row justify-content-center align-items-center py-4">
+    <div class="col-md-9 col-lg-7 col-xl-6">
         
-        <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+        <div class="card shadow border-0 rounded-4 overflow-hidden">
             <!-- Header Banner -->
             <div class="p-4 text-center" style="background: linear-gradient(135deg, #0f172a 0%, #064e3b 100%); color: #ffffff;">
                 <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width: 56px; height: 56px; background-color: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.2);">
@@ -19,7 +22,7 @@
 
             <div class="card-body p-4 bg-white">
                 <!-- Registration Form -->
-                <form method="post" action="{% url 'signup' %}">
+                <form method="post" action="{% url 'signup' %}" id="cadastralSignupForm" novalidate>
                     {% csrf_token %}
 
                     {% if form.non_field_errors %}
@@ -52,14 +55,20 @@
                         </div>
                     </div>
 
-                    <!-- Username -->
+                    <!-- Username with Real-Time Validation Feedback & Popup -->
                     <div class="mb-3">
-                        <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold small text-secondary">
-                            <i class="bi bi-person-fill me-1"></i> Username <span class="text-danger">*</span>
-                        </label>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold small text-secondary mb-0">
+                                <i class="bi bi-person-fill me-1"></i> Username <span class="text-danger">*</span>
+                            </label>
+                            <span id="usernameStatusBadge" class="badge" style="display:none; font-size: 0.75rem;"></span>
+                        </div>
                         {{ form.username }}
+                        <div id="usernameFeedbackAlert" class="small mt-1" style="display:none;"></div>
                         {% if form.username.errors %}
-                            <div class="text-danger small mt-1">{{ form.username.errors|first }}</div>
+                            <div class="text-danger small mt-1" id="serverUsernameError">
+                                <i class="bi bi-exclamation-circle-fill me-1"></i> {{ form.username.errors|first }}
+                            </div>
                         {% endif %}
                     </div>
 
@@ -74,9 +83,9 @@
                         {% endif %}
                     </div>
 
-                    <!-- Password Row -->
-                    <div class="row g-2 mb-4">
-                        <div class="col-sm-6">
+                    <!-- Password Row with Live Dynamic Validation Popup Checklist -->
+                    <div class="row g-2 mb-2">
+                        <div class="col-sm-6 position-relative">
                             <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold small text-secondary">
                                 <i class="bi bi-lock-fill me-1"></i> Password <span class="text-danger">*</span>
                             </label>
@@ -87,17 +96,42 @@
                         </div>
                         <div class="col-sm-6">
                             <label for="{{ form.confirm_password.id_for_label }}" class="form-label fw-semibold small text-secondary">
-                                <i class="bi bi-shield-check me-1"></i> Confirm <span class="text-danger">*</span>
+                                <i class="bi bi-shield-check me-1"></i> Confirm Password <span class="text-danger">*</span>
                             </label>
                             {{ form.confirm_password }}
+                            <div id="confirmPasswordFeedback" class="small mt-1" style="display:none;"></div>
                             {% if form.confirm_password.errors %}
                                 <div class="text-danger small mt-1">{{ form.confirm_password.errors|first }}</div>
                             {% endif %}
                         </div>
                     </div>
 
+                    <!-- Password Requirements Live Status Popup Box -->
+                    <div id="passwordRequirementsBox" class="p-3 mb-3 rounded-3 border" style="background: var(--earth-card-muted);">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-bold text-dark">
+                                <i class="bi bi-shield-lock-fill me-1 text-primary"></i> Password Requirements:
+                            </span>
+                            <span id="passwordMeterBadge" class="badge bg-warning text-dark">Pending</span>
+                        </div>
+                        <div class="row g-1 small" id="passwordChecklist">
+                            <div class="col-sm-6 rule-item invalid" id="ruleCapital">
+                                <i class="bi bi-x-circle-fill text-danger me-1"></i> 1 Capital Letter (A-Z)
+                            </div>
+                            <div class="col-sm-6 rule-item invalid" id="ruleChar">
+                                <i class="bi bi-x-circle-fill text-danger me-1"></i> 1 Character (a-z)
+                            </div>
+                            <div class="col-sm-6 rule-item invalid" id="ruleNumber">
+                                <i class="bi bi-x-circle-fill text-danger me-1"></i> 1 Number (0-9)
+                            </div>
+                            <div class="col-sm-6 rule-item invalid" id="ruleLength">
+                                <i class="bi bi-x-circle-fill text-danger me-1"></i> At least 6 characters
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Submit Button -->
-                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                    <button type="submit" id="submitSignupBtn" class="btn btn-primary w-100 py-2 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm">
                         <i class="bi bi-check-circle-fill"></i> Complete Registration
                     </button>
                 </form>
@@ -126,19 +160,266 @@
 {% block extra_js %}
 <script>
     (function() {
-        var signupForm = document.querySelector('form');
-        if (signupForm) {
-            signupForm.addEventListener('submit', function() {
-                try {
-                    var uInput = document.getElementById('{{ form.username.id_for_label }}') || document.querySelector('input[name="username"]');
-                    var eInput = document.getElementById('{{ form.email.id_for_label }}') || document.querySelector('input[name="email"]');
-                    var fnInput = document.getElementById('{{ form.first_name.id_for_label }}') || document.querySelector('input[name="first_name"]');
-                    var lnInput = document.getElementById('{{ form.last_name.id_for_label }}') || document.querySelector('input[name="last_name"]');
-                    var pInput = document.getElementById('{{ form.password.id_for_label }}') || document.querySelector('input[name="password"]');
+        // Elements
+        var form = document.getElementById('cadastralSignupForm');
+        var uInput = document.getElementById('{{ form.username.id_for_label }}') || document.querySelector('input[name="username"]');
+        var pInput = document.getElementById('{{ form.password.id_for_label }}') || document.querySelector('input[name="password"]');
+        var cpInput = document.getElementById('{{ form.confirm_password.id_for_label }}') || document.querySelector('input[name="confirm_password"]');
+        var eInput = document.getElementById('{{ form.email.id_for_label }}') || document.querySelector('input[name="email"]');
+        var fnInput = document.getElementById('{{ form.first_name.id_for_label }}') || document.querySelector('input[name="first_name"]');
+        var lnInput = document.getElementById('{{ form.last_name.id_for_label }}') || document.querySelector('input[name="last_name"]');
 
+        var uBadge = document.getElementById('usernameStatusBadge');
+        var uFeedback = document.getElementById('usernameFeedbackAlert');
+
+        var ruleCapital = document.getElementById('ruleCapital');
+        var ruleChar = document.getElementById('ruleChar');
+        var ruleNumber = document.getElementById('ruleNumber');
+        var ruleLength = document.getElementById('ruleLength');
+        var passwordMeterBadge = document.getElementById('passwordMeterBadge');
+        var confirmFeedback = document.getElementById('confirmPasswordFeedback');
+        var toastWrapper = document.getElementById('toastPopupWrapper');
+
+        var usernameAvailable = null;
+        var checkTimer = null;
+
+        // Dynamic Floating Toast Popup Generator
+        function showPopup(title, message, type) {
+            var bgClass = 'bg-white';
+            var borderClass = type === 'danger' ? 'border-danger' : (type === 'warning' ? 'border-warning' : 'border-success');
+            var iconClass = type === 'danger' ? 'bi-exclamation-octagon-fill text-danger' : (type === 'warning' ? 'bi-exclamation-triangle-fill text-warning' : 'bi-check-circle-fill text-success');
+            
+            var toastId = 'toast_' + Date.now();
+            var toastHtml = document.createElement('div');
+            toastHtml.className = 'toast show floating-popup-toast border-start border-4 ' + borderClass + ' ' + bgClass + ' mb-2';
+            toastHtml.id = toastId;
+            toastHtml.setAttribute('role', 'alert');
+            toastHtml.style.minWidth = '300px';
+            toastHtml.style.maxWidth = '380px';
+            
+            toastHtml.innerHTML = 
+                '<div class="toast-header border-bottom-0 pb-0">' +
+                    '<i class="bi ' + iconClass + ' me-2 fs-5"></i>' +
+                    '<strong class="me-auto text-dark">' + title + '</strong>' +
+                    '<button type="button" class="btn-close" onclick="document.getElementById(\'' + toastId + '\').remove();"></button>' +
+                '</div>' +
+                '<div class="toast-body pt-1 small text-secondary">' +
+                    message +
+                '</div>';
+                
+            toastWrapper.appendChild(toastHtml);
+            
+            setTimeout(function() {
+                var el = document.getElementById(toastId);
+                if (el) el.remove();
+            }, 5500);
+        }
+
+        // Trigger popup if server returned username already taken error
+        var serverUError = document.getElementById('serverUsernameError');
+        if (serverUError && serverUError.textContent.trim()) {
+            showPopup("Username Already Taken", serverUError.textContent.trim(), "danger");
+        }
+
+        // ==============================================================
+        // 1. Real-Time Username Live Check & Popup
+        // ==============================================================
+        function checkUsernameLive(val) {
+            val = (val || '').trim();
+            if (!val || val.length < 3) {
+                uBadge.style.display = 'none';
+                uFeedback.style.display = 'none';
+                uInput.classList.remove('is-invalid', 'is-valid');
+                usernameAvailable = null;
+                return;
+            }
+
+            fetch('/api/check-username/?username=' + encodeURIComponent(val))
+                .then(function(res) { return res.json(); })
+                .then(function(data) {
+                    if (data.exists) {
+                        usernameAvailable = false;
+                        uBadge.style.display = 'inline-block';
+                        uBadge.className = 'badge bg-danger';
+                        uBadge.innerHTML = '<i class="bi bi-x-circle me-1"></i> Already Taken';
+
+                        uFeedback.style.display = 'block';
+                        uFeedback.className = 'small text-danger mt-1 fw-medium';
+                        uFeedback.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-1"></i> ' + data.message;
+
+                        uInput.classList.add('is-invalid');
+                        uInput.classList.remove('is-valid');
+                        uInput.classList.add('input-shake');
+                        setTimeout(function() { uInput.classList.remove('input-shake'); }, 400);
+
+                        // Popup notification
+                        showPopup("Username Exists", "The username <strong>'" + val + "'</strong> is already registered. Please choose a different username.", "danger");
+                    } else if (data.available) {
+                        usernameAvailable = true;
+                        uBadge.style.display = 'inline-block';
+                        uBadge.className = 'badge bg-success';
+                        uBadge.innerHTML = '<i class="bi bi-check-circle me-1"></i> Available';
+
+                        uFeedback.style.display = 'none';
+                        uInput.classList.remove('is-invalid');
+                        uInput.classList.add('is-valid');
+                    }
+                })
+                .catch(function(err) {});
+        }
+
+        if (uInput) {
+            uInput.addEventListener('input', function() {
+                clearTimeout(checkTimer);
+                checkTimer = setTimeout(function() {
+                    checkUsernameLive(uInput.value);
+                }, 500);
+            });
+
+            uInput.addEventListener('blur', function() {
+                clearTimeout(checkTimer);
+                checkUsernameLive(uInput.value);
+            });
+        }
+
+        // ==============================================================
+        // 2. Real-Time Password Requirements Checklist & Popup
+        // ==============================================================
+        function validatePasswordRequirements(val) {
+            val = val || '';
+            var hasCapital = /[A-Z]/.test(val);
+            var hasChar = /[a-z]/.test(val);
+            var hasNumber = /[0-9]/.test(val);
+            var hasLength = val.length >= 6;
+
+            function updateRule(el, valid, text) {
+                if (valid) {
+                    el.className = 'col-sm-6 rule-item valid';
+                    el.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i> ' + text;
+                } else {
+                    el.className = 'col-sm-6 rule-item invalid';
+                    el.innerHTML = '<i class="bi bi-x-circle-fill text-danger me-1"></i> ' + text;
+                }
+            }
+
+            updateRule(ruleCapital, hasCapital, '1 Capital Letter (A-Z)');
+            updateRule(ruleChar, hasChar, '1 Character (a-z)');
+            updateRule(ruleNumber, hasNumber, '1 Number (0-9)');
+            updateRule(ruleLength, hasLength, 'At least 6 characters');
+
+            var allValid = hasCapital && hasChar && hasNumber && hasLength;
+            if (allValid) {
+                passwordMeterBadge.className = 'badge bg-success';
+                passwordMeterBadge.textContent = 'Compliant';
+                pInput.classList.remove('is-invalid');
+                pInput.classList.add('is-valid');
+            } else {
+                passwordMeterBadge.className = 'badge bg-warning text-dark';
+                passwordMeterBadge.textContent = 'Incomplete';
+                pInput.classList.remove('is-valid');
+            }
+
+            return {
+                allValid: allValid,
+                hasCapital: hasCapital,
+                hasChar: hasChar,
+                hasNumber: hasNumber,
+                hasLength: hasLength
+            };
+        }
+
+        if (pInput) {
+            pInput.addEventListener('input', function() {
+                validatePasswordRequirements(pInput.value);
+            });
+
+            pInput.addEventListener('blur', function() {
+                var res = validatePasswordRequirements(pInput.value);
+                if (pInput.value.length > 0 && !res.allValid) {
+                    var missing = [];
+                    if (!res.hasCapital) missing.push("1 Capital Letter (A-Z)");
+                    if (!res.hasChar) missing.push("1 Character (a-z)");
+                    if (!res.hasNumber) missing.push("1 Number (0-9)");
+                    if (!res.hasLength) missing.push("Min 6 Characters");
+
+                    showPopup("Password Requirements Incomplete", "Please include: <strong>" + missing.join(", ") + "</strong>.", "warning");
+                }
+            });
+        }
+
+        // Confirm password match check
+        if (cpInput && pInput) {
+            cpInput.addEventListener('input', function() {
+                if (!cpInput.value) {
+                    confirmFeedback.style.display = 'none';
+                    cpInput.classList.remove('is-invalid', 'is-valid');
+                    return;
+                }
+                if (cpInput.value === pInput.value) {
+                    confirmFeedback.style.display = 'block';
+                    confirmFeedback.className = 'small text-success mt-1 fw-medium';
+                    confirmFeedback.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Passwords match!';
+                    cpInput.classList.remove('is-invalid');
+                    cpInput.classList.add('is-valid');
+                } else {
+                    confirmFeedback.style.display = 'block';
+                    confirmFeedback.className = 'small text-danger mt-1 fw-medium';
+                    confirmFeedback.innerHTML = '<i class="bi bi-x-circle-fill me-1"></i> Passwords do not match';
+                    cpInput.classList.remove('is-valid');
+                    cpInput.classList.add('is-invalid');
+                }
+            });
+        }
+
+        // ==============================================================
+        // 3. Form Submit Interception & Validation Popups
+        // ==============================================================
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                // Check Username Availability
+                if (usernameAvailable === false) {
+                    e.preventDefault();
+                    showPopup("Cannot Register", "The username <strong>'" + uInput.value + "'</strong> is already taken! Please change it before submitting.", "danger");
+                    uInput.focus();
+                    uInput.classList.add('input-shake');
+                    setTimeout(function() { uInput.classList.remove('input-shake'); }, 400);
+                    return;
+                }
+
+                // Check Password Requirements
+                var pRes = validatePasswordRequirements(pInput ? pInput.value : '');
+                if (!pRes.allValid) {
+                    e.preventDefault();
+                    var missing = [];
+                    if (!pRes.hasCapital) missing.push("1 Capital Letter (A-Z)");
+                    if (!pRes.hasChar) missing.push("1 Character (a-z)");
+                    if (!pRes.hasNumber) missing.push("1 Number (0-9)");
+                    if (!pRes.hasLength) missing.push("At least 6 characters");
+
+                    showPopup("Password Incomplete", "Your password does not fulfill all requirements. Missing: <strong>" + missing.join(", ") + "</strong>.", "danger");
+                    if (pInput) {
+                        pInput.focus();
+                        pInput.classList.add('is-invalid', 'input-shake');
+                        setTimeout(function() { pInput.classList.remove('input-shake'); }, 400);
+                    }
+                    return;
+                }
+
+                // Check Password Match
+                if (cpInput && pInput && cpInput.value !== pInput.value) {
+                    e.preventDefault();
+                    showPopup("Password Mismatch", "Passwords do not match. Please re-enter your confirm password.", "danger");
+                    cpInput.focus();
+                    cpInput.classList.add('is-invalid', 'input-shake');
+                    setTimeout(function() { cpInput.classList.remove('input-shake'); }, 400);
+                    return;
+                }
+
+                // Cache in localStorage client vault for serverless persistence
+                try {
                     var u = uInput ? uInput.value.trim() : '';
                     var p = pInput ? pInput.value : '';
-                    var e = eInput ? eInput.value.trim().toLowerCase() : '';
+                    var em = eInput ? eInput.value.trim().toLowerCase() : '';
                     var fn = fnInput ? fnInput.value.trim() : '';
                     var ln = lnInput ? lnInput.value.trim() : '';
 
@@ -146,7 +427,7 @@
                         var vault = JSON.parse(localStorage.getItem('geocadastre_vault') || '{}');
                         vault[u.toLowerCase()] = {
                             username: u,
-                            email: e,
+                            email: em,
                             first_name: fn,
                             last_name: ln,
                             password: p

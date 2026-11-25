@@ -162,8 +162,8 @@ class CadastralRecordsTests(TestCase):
             'last_name': 'Varma',
             'username': 'ravivarma',
             'email': 'ravi@cadastre.in',
-            'password': 'password123',
-            'confirm_password': 'password123'
+            'password': 'Password123',
+            'confirm_password': 'Password123'
         }
         res = anon_client.post(reverse('signup'), signup_data)
         self.assertEqual(res.status_code, 302)

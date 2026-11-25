@@ -5,6 +5,7 @@ urlpatterns = [
     # Public & Authentication Routes
     path('', views.home_view, name='home'),
     path('signup/', views.signup_view, name='signup'),
+    path('api/check-username/', views.check_username_api, name='check_username_api'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
 

@@ -1,4 +1,5 @@
 import json
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -147,6 +148,31 @@ def signup_view(request):
         form = UserRegistrationForm()
 
     return render(request, 'records/signup.html', {'form': form})
+
+
+def check_username_api(request):
+    """
+    Real-time JSON endpoint to verify whether a username is already taken.
+    """
+    username = request.GET.get('username', '').strip()
+    if not username:
+        return JsonResponse({'valid': False, 'message': 'Username is required.'})
+
+    _sync_vault_users_from_request(request)
+
+    exists = User.objects.filter(username__iexact=username).exists()
+    reserved = {'admin', 'aditya', 'user', 'surveyor', 'root', 'superuser'}
+    if username.lower() in reserved or exists:
+        return JsonResponse({
+            'exists': True,
+            'available': False,
+            'message': f"Username '{username}' is already taken! Please choose another."
+        })
+    return JsonResponse({
+        'exists': False,
+        'available': True,
+        'message': f"Username '{username}' is available!"
+    })
 
 
 def login_view(request):

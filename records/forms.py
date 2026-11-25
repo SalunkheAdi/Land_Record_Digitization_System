@@ -1,3 +1,4 @@
+import re
 from django import forms
 from django.contrib.auth.models import User
 from .models import LandOwner, LandParcel
@@ -72,6 +73,20 @@ class UserRegistrationForm(forms.ModelForm):
         if User.objects.filter(email__iexact=email).exists():
             raise forms.ValidationError("An account with this email address already exists.")
         return email
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password', '')
+        if not password:
+            raise forms.ValidationError("Password is required.")
+        if len(password) < 6:
+            raise forms.ValidationError("Password must be at least 6 characters long.")
+        if not re.search(r'[A-Z]', password):
+            raise forms.ValidationError("Password must contain at least one capital letter (A-Z).")
+        if not re.search(r'[a-z]', password):
+            raise forms.ValidationError("Password must contain at least one character (a-z).")
+        if not re.search(r'[0-9]', password):
+            raise forms.ValidationError("Password must contain at least one number (0-9).")
+        return password
 
     def clean_first_name(self):
         return self.cleaned_data.get('first_name', '').strip()
