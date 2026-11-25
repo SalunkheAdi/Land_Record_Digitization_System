@@ -48,11 +48,6 @@
                             <i class="bi bi-house-door me-1"></i> Home
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.resolver_match.url_name == 'land_prediction' %}active{% endif %}" href="{% url 'land_prediction' %}">
-                            <i class="bi bi-cpu me-1 text-success"></i> AI Land Prediction
-                        </a>
-                    </li>
                     {% if user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">

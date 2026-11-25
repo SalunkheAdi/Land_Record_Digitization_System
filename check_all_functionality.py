@@ -52,6 +52,9 @@ def run_audit():
     anon_parcels = client.get(reverse('parcel_list'))
     assert_check("Unauthenticated /parcels/ Redirects (302) to Login", anon_parcels.status_code == 302 and reverse('login') in anon_parcels.url)
 
+    anon_pred = client.get(reverse('land_prediction'))
+    assert_check("Unauthenticated /land-prediction/ Redirects (302) to Login", anon_pred.status_code == 302 and reverse('login') in anon_pred.url)
+
     login_page = client.get(reverse('login'))
     assert_check("Login View ('/login/') Status 200", login_page.status_code == 200)
 

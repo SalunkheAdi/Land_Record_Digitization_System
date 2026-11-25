@@ -215,3 +215,18 @@ class ValidationAppTests(TestCase):
         self.assertIn('Cadastral AI Risk Assessment', data['response'])
         self.assertIn('/land-prediction/', data['response'])
 
+    def test_10_unauthenticated_land_prediction_access_denied(self):
+        """Test that unauthenticated users cannot access /land-prediction/ before logging in."""
+        anon_client = Client()
+        url = reverse('land_prediction')
+        res = anon_client.get(url)
+        # Must redirect (302) to login page
+        self.assertEqual(res.status_code, 302)
+        self.assertIn('/login/', res.url)
+
+        # Unauthenticated API call must return 401
+        api_url = reverse('api_predict_land')
+        api_res = anon_client.post(api_url, {'survey_number': 'SY-TEST'})
+        self.assertEqual(api_res.status_code, 401)
+
+

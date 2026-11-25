@@ -350,9 +350,11 @@ def ai_agent_chat_api(request):
     })
 
 
+@login_required
 def land_prediction_view(request):
     """
     Dedicated view for AI Land Health & Safety Prediction.
+    Requires user authentication (only accessible after login).
     Users upload a survey number and land/satellite image (or select instant presets).
     The AI calculates the land health score (0-100%), safety determination,
     vegetation canopy, built-up encroachment, and boundary demarcation.
@@ -434,8 +436,12 @@ def land_prediction_view(request):
 def api_predict_land(request):
     """
     JSON API endpoint for AJAX-based AI Land Prediction.
+    Requires user authentication.
     Accepts multipart/form-data or JSON with survey_number and image.
     """
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'error', 'message': 'Authentication required. Please sign in.'}, status=401)
+
     if request.method != 'POST':
         return JsonResponse({'error': 'POST method required.'}, status=405)
 
