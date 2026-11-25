@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.auth.models import User
 from records.models import LandParcel
 
 
@@ -106,3 +107,97 @@ class ValidationAudit(models.Model):
         elif self.final_determination == 'CONDITIONAL':
             self.parcel.digitization_status = 'FLAGGED'
         self.parcel.save(update_fields=['digitization_status', 'is_disputed'])
+
+
+class LandPrediction(models.Model):
+    """
+    Model representing an AI Satellite & Aerial Imagery Land Health Prediction.
+    Evaluates land health score, safety status, vegetation density,
+    built-up encroachment, and boundary demarcation.
+    """
+    SAFETY_CHOICES = [
+        ('SAFE', 'Safe - Low Risk Clean Land'),
+        ('MODERATE', 'Moderate Risk - Minor Discrepancy / Caution'),
+        ('UNSAFE', 'Unsafe - Critical Encroachment / High Risk'),
+    ]
+
+    survey_number = models.CharField(
+        max_length=100,
+        verbose_name="Cadastral Survey Number",
+        help_text="Survey identifier e.g., SY-104-2B"
+    )
+    parcel = models.ForeignKey(
+        LandParcel,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="predictions",
+        verbose_name="Linked Registered Parcel"
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Requested User"
+    )
+    image_data = models.TextField(
+        verbose_name="Uploaded Land Image (Base64)",
+        help_text="Base64 encoded data URI of the uploaded land/satellite image"
+    )
+    predicted_health_score = models.IntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        verbose_name="AI Health Score (0-100)"
+    )
+    safety_status = models.CharField(
+        max_length=20,
+        choices=SAFETY_CHOICES,
+        default='SAFE',
+        verbose_name="Land Safety Status"
+    )
+    risk_category = models.CharField(
+        max_length=50,
+        default='Low Risk - Clean Title',
+        verbose_name="Risk Category"
+    )
+    determination = models.CharField(
+        max_length=20,
+        default='APPROVED',
+        verbose_name="Determination"
+    )
+    vegetation_ratio = models.FloatField(
+        default=0.0,
+        verbose_name="Vegetation Canopy Ratio (%)"
+    )
+    builtup_ratio = models.FloatField(
+        default=0.0,
+        verbose_name="Built-up / Structure Density (%)"
+    )
+    soil_water_ratio = models.FloatField(
+        default=0.0,
+        verbose_name="Soil & Hydrological Ratio (%)"
+    )
+    boundary_clarity = models.CharField(
+        max_length=50,
+        default='High Clarity - Demarcated',
+        verbose_name="Boundary Demarcation Clarity"
+    )
+    ai_analysis_summary = models.TextField(
+        verbose_name="AI Diagnostic Summary"
+    )
+    audit_logged = models.BooleanField(
+        default=False,
+        verbose_name="Logged into Annual Audits"
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Prediction Timestamp"
+    )
+
+    class Meta:
+        verbose_name = "AI Land Prediction"
+        verbose_name_plural = "AI Land Predictions"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.survey_number} - {self.safety_status} ({self.predicted_health_score}%)"

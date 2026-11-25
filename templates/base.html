@@ -48,6 +48,11 @@
                             <i class="bi bi-house-door me-1"></i> Home
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.resolver_match.url_name == 'land_prediction' %}active{% endif %}" href="{% url 'land_prediction' %}">
+                            <i class="bi bi-cpu me-1 text-success"></i> AI Land Prediction
+                        </a>
+                    </li>
                     {% if user.is_authenticated %}
                         <li class="nav-item">
                             <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'dashboard' %}">
@@ -67,6 +72,11 @@
                         <li class="nav-item">
                             <a class="nav-link {% if request.resolver_match.url_name == 'validation_list' %}active{% endif %}" href="{% url 'validation_list' %}">
                                 <i class="bi bi-clipboard-check me-1"></i> Cadastral Audits
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'land_prediction' %}active{% endif %}" href="{% url 'land_prediction' %}">
+                                <i class="bi bi-cpu me-1 text-success"></i> AI Land Prediction
                             </a>
                         </li>
                         <li class="nav-item">
@@ -211,10 +221,10 @@
                     
                     <div class="ai-quick-chips mt-2">
                         <span class="ai-chip" data-query="How is the AI Risk Score calculated?">🧠 How is AI score calculated?</span>
+                        <span class="ai-chip" data-query="Explain AI Land Prediction tool">🛰️ AI Land Prediction</span>
                         <span class="ai-chip" data-query="Inspect SY-99-DISP (35% High Risk)">🚨 Why did SY-99-DISP score 35%?</span>
                         <span class="ai-chip" data-query="Inspect SY-401-ECO (68% Medium Risk)">⚠️ Inspect SY-401-ECO (68%)</span>
                         <span class="ai-chip" data-query="Inspect SY-104-2B (96% Clean Title)">✅ Inspect SY-104-2B (96%)</span>
-                        <span class="ai-chip" data-query="Show high risk parcels">📋 Show all high-risk parcels</span>
                     </div>
                 </div>
             </div>
@@ -313,24 +323,41 @@
             // Client-Side Intelligence Fallback Engine
             function getClientSideAiAnswer(q) {
                 var qLow = q.toLowerCase();
-                if (qLow.indexOf('basis') !== -1 || qLow.indexOf('bases') !== -1 || qLow.indexOf('calculate') !== -1 || qLow.indexOf('score') !== -1 || qLow.indexOf('formula') !== -1 || qLow.indexOf('criteria') !== -1 || qLow.indexOf('how') !== -1) {
+                if (qLow.indexOf('prediction') !== -1 || qLow.indexOf('predict') !== -1 || qLow.indexOf('image') !== -1 || qLow.indexOf('satellite') !== -1 || qLow.indexOf('health') !== -1) {
                     return {
-                        response: "<strong>🧠 Cadastral AI Risk Assessment Methodology:</strong><br><br>" +
-                            "The AI Compliance Engine starts at a baseline of <strong>100 Points</strong> and performs 5 automated heuristic audits:<br><br>" +
+                        response: "<strong>🛰️ AI Satellite & Aerial Land Prediction Engine:</strong><br><br>" +
+                            "You can upload any land's <strong>Survey Number</strong> and <strong>Land Image</strong> to detect:<br>" +
+                            "• <strong>Land Health Score (0–100%)</strong>: Linked to the official Annual Cadastral Audit Log.<br>" +
+                            "• <strong>Safety Classification</strong>: <span class='badge bg-success'>SAFE</span>, <span class='badge bg-warning text-dark'>MODERATE</span>, or <span class='badge bg-danger'>UNSAFE</span>.<br>" +
+                            "• <strong>Canopy & Encroachment</strong>: Vegetation density, unauthorized concrete structures, and soil balance.<br>" +
+                            "• <strong>Boundary Demarcation</strong>: Automated edge detection for boundary clarity.<br><br>" +
+                            "<div class='mt-2'><a href='/land-prediction/' class='btn btn-sm btn-primary py-0'><i class='bi bi-cpu'></i> Launch AI Land Prediction &rarr;</a></div>",
+                        quick_suggestions: [
+                            "Launch AI Land Prediction",
+                            "How is the score calculated?",
+                            "Inspect SY-104-2B (96%)"
+                        ]
+                    };
+                }
+                if (qLow.indexOf('basis') !== -1 || qLow.indexOf('bases') !== -1 || qLow.indexOf('calculate') !== -1 || qLow.indexOf('score') !== -1 || qLow.indexOf('formula') !== -1 || qLow.indexOf('criteria') !== -1 || qLow.indexOf('how') !== -1 || qLow.indexOf('ai') !== -1) {
+                    return {
+                        response: "<strong>🧠 Cadastral AI Risk Assessment & Land Health Methodology:</strong><br><br>" +
+                            "The AI Engine computes compliance & land health scores (0–100) using 5 heuristic audits:<br><br>" +
                             "<strong>1. Title Deed & Survey Number Syntax (15 Pts):</strong> Validates standard cadastral regex <code>^[A-Z0-9\\-/\\.]+$</code>.<br>" +
                             "<strong>2. GPS Centroid Geospatial Sanity (20 Pts):</strong> Verifies physical latitude/longitude coordinate bounding.<br>" +
-                            "<strong>3. Zoning & Area Thresholds (15 - 25 Pts):</strong> Flags over-sized residential plots (>15k sq m) or unauthorized agricultural fragmentation (<200 sq m).<br>" +
-                            "<strong>4. Circle Rate Valuation vs. Area (10 Pts):</strong> Identifies stamp duty undervaluation (&lt; ₹5/sqm) or hyper-inflated speculative rates (&gt; ₹500k/sqm).<br>" +
-                            "<strong>5. Active Litigation & Court Injunctions (35 Pts):</strong> Immediate 35-point penalty if an active court stay order or dispute flag exists.<br><br>" +
-                            "<strong>⚖️ Risk Category & Determination Matrix:</strong><br>" +
+                            "<strong>3. Zoning & Area Thresholds (15 - 25 Pts):</strong> Flags over-sized residential plots (>15k sq m) or unauthorized agricultural fragmentation.<br>" +
+                            "<strong>4. Circle Rate Valuation vs. Area (10 Pts):</strong> Identifies stamp duty undervaluation or hyper-inflated speculative rates.<br>" +
+                            "<strong>5. Active Litigation & Court Stay Orders (35 Pts):</strong> Immediate 35-point penalty if an active court stay order or dispute flag exists.<br><br>" +
+                            "<strong>⚖️ Determination Matrix:</strong><br>" +
                             "• <span class='badge bg-success'>80% - 100%</span> <strong>Low Risk:</strong> Clean Title &rarr; <em>Approved</em><br>" +
                             "• <span class='badge bg-warning text-dark'>50% - 79%</span> <strong>Medium Risk:</strong> Minor Anomaly &rarr; <em>Conditional</em><br>" +
-                            "• <span class='badge bg-danger'>&lt; 50%</span> <strong>High Risk:</strong> Critical Discrepancy &rarr; <em>Rejected</em>",
+                            "• <span class='badge bg-danger'>&lt; 50%</span> <strong>High Risk:</strong> Critical Discrepancy &rarr; <em>Rejected</em><br><br>" +
+                            "<div class='mt-2'><a href='/land-prediction/' class='btn btn-sm btn-primary py-0'><i class='bi bi-cpu'></i> Open AI Land Prediction Tool &rarr;</a></div>",
                         quick_suggestions: [
+                            "Launch AI Land Prediction",
                             "Inspect SY-99-DISP (35% High Risk)",
                             "Inspect SY-401-ECO (68% Medium Risk)",
-                            "Inspect SY-104-2B (96% Clean Title)",
-                            "Show all high risk parcels"
+                            "Inspect SY-104-2B (96% Clean Title)"
                         ]
                     };
                 }

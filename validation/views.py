@@ -4,10 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.db.models import Avg, Count, Q
+from django.utils import timezone
 from records.models import LandParcel
-from .models import ValidationAudit
-from .forms import ValidationAuditForm
-from .services import IntelligentValidationEngine
+from .models import ValidationAudit, LandPrediction
+from .forms import ValidationAuditForm, LandPredictionForm
+from .services import IntelligentValidationEngine, AILandPredictionService
 import uuid
 import json
 import re
@@ -221,33 +222,62 @@ def ai_agent_chat_api(request):
     # 2. Check if user is asking about how the AI score is calculated / methodology
     is_scoring_query = (
         any(w in words for w in ['basis', 'bases', 'formula', 'criteria', 'methodology', 'weight', 'weights', 'calculate', 'calculated']) or
-        ('how' in words and any(w in words for w in ['score', 'work', 'works', 'rate', 'audit'])) or
-        ('score' in words and 'calculated' in words) or
-        ('scoring' in q_lower)
+        ('how' in words and any(w in words for w in ['score', 'work', 'works', 'rate', 'audit', 'health'])) or
+        ('score' in words and ('calculated' in words or 'ai' in words or 'how' in words)) or
+        ('scoring' in q_lower) or
+        ('health' in words and 'score' in words)
     )
     if is_scoring_query:
         response_text = (
-            "<strong>🧠 Cadastral AI Risk Assessment Methodology:</strong><br><br>"
-            "The AI Compliance Engine starts at a baseline of <strong>100 Points</strong> and performs 5 automated heuristic audits:<br><br>"
-            "<strong>1. Title Deed & Survey Number Syntax (15 Pts):</strong> Validates standard cadastral regex <code>^[A-Z0-9\\-/\\.]+$</code>.<br>"
-            "<strong>2. GPS Centroid Geospatial Sanity (20 Pts):</strong> Verifies physical latitude/longitude coordinate bounding.<br>"
-            "<strong>3. Zoning & Area Thresholds (15 - 25 Pts):</strong> Flags over-sized residential plots (>15k sq m) or unauthorized agricultural fragmentation (<200 sq m).<br>"
-            "<strong>4. Circle Rate Valuation vs. Area (10 Pts):</strong> Identifies stamp duty undervaluation (&lt; ₹5/sqm) or hyper-inflated speculative rates (&gt; ₹500k/sqm).<br>"
-            "<strong>5. Active Litigation & Court Injunctions (35 Pts):</strong> Immediate 35-point penalty if an active court stay order or dispute flag exists.<br><br>"
-            "<strong>⚖️ Risk Category & Determination Matrix:</strong><br>"
-            "• <span class='badge bg-success'>80% - 100%</span> <strong>Low Risk:</strong> Clean Title &rarr; <em>Approved</em><br>"
-            "• <span class='badge bg-warning text-dark'>50% - 79%</span> <strong>Medium Risk:</strong> Minor Anomaly &rarr; <em>Conditional</em><br>"
-            "• <span class='badge bg-danger'>&lt; 50%</span> <strong>High Risk:</strong> Critical Discrepancy &rarr; <em>Rejected</em>"
+            "<strong>🧠 Cadastral AI Risk Assessment Methodology & Land Health:</strong><br><br>"
+            "Our system evaluates land across two intelligent dimensions:<br><br>"
+            "<strong>A. Statutory Cadastral Compliance (0–100 Pts):</strong><br>"
+            "• <strong>1. Title Deed & Survey Syntax (15 Pts):</strong> Regex validation against standard cadastral schemas.<br>"
+            "• <strong>2. GPS Centroid Geospatial Sanity (20 Pts):</strong> Physical latitude/longitude bounding.<br>"
+            "• <strong>3. Zoning & Area Thresholds (15 - 25 Pts):</strong> Flagging illegal subdivision or oversized residential plots.<br>"
+            "• <strong>4. Circle Rate Valuation vs. Area (10 Pts):</strong> Detects stamp duty undervaluation or speculative spikes.<br>"
+            "• <strong>5. Active Litigation & Court Stay Orders (35 Pts):</strong> Immediate 35-point penalty for active dispute flags.<br><br>"
+            "<strong>B. AI Satellite & Aerial Land Prediction (0–100 Pts):</strong><br>"
+            "Upload any land image or aerial photo to automatically analyze <strong>Vegetation Canopy %</strong>, "
+            "<strong>Built-up Concrete Encroachment %</strong>, <strong>Soil Health</strong>, and <strong>Boundary Demarcation Clarity</strong>.<br><br>"
+            "<strong>⚖️ Determination Matrix:</strong><br>"
+            "• <span class='badge bg-success'>80% - 100%</span> <strong>SAFE / Low Risk:</strong> Clean Title &rarr; <em>Approved</em><br>"
+            "• <span class='badge bg-warning text-dark'>50% - 79%</span> <strong>MODERATE Risk:</strong> Minor Anomaly &rarr; <em>Conditional</em><br>"
+            "• <span class='badge bg-danger'>&lt; 50%</span> <strong>UNSAFE / High Risk:</strong> Critical Discrepancy &rarr; <em>Rejected</em>"
+            "<div class='mt-2'><a href='/land-prediction/' class='btn btn-sm btn-primary py-0'><i class='bi bi-cpu'></i> Open AI Land Prediction Tool &rarr;</a></div>"
         )
         return JsonResponse({
             'status': 'success',
             'intent': 'scoring_explanation',
             'response': response_text,
             'quick_suggestions': [
+                "Open AI Land Prediction",
                 "Inspect SY-99-DISP (35% High Risk)",
-                "Inspect SY-401-ECO (68% Medium Risk)",
                 "Inspect SY-104-2B (96% Clean Title)",
                 "Show all high risk parcels"
+            ]
+        })
+
+    # 2b. Check if user is asking about AI Land Prediction / Image analysis
+    if any(w in words for w in ['prediction', 'predict', 'image', 'satellite', 'aerial', 'photo', 'health']):
+        response_text = (
+            "<strong>🛰️ AI Satellite & Aerial Land Prediction Engine:</strong><br><br>"
+            "You can upload any land's <strong>Survey Number</strong> and <strong>Land Image</strong> to detect:<br>"
+            "• <strong>Land Health Score (0–100%)</strong>: Cross-referenced with the Annual Cadastral Audit Log.<br>"
+            "• <strong>Safety Status</strong>: <span class='badge bg-success'>SAFE</span>, <span class='badge bg-warning text-dark'>MODERATE</span>, or <span class='badge bg-danger'>UNSAFE</span>.<br>"
+            "• <strong>Canopy & Encroachment</strong>: Vegetation density, unauthorized concrete structures, and soil balance.<br>"
+            "• <strong>Boundary Demarcation</strong>: Automated edge detection for boundary clarity.<br><br>"
+            "You can test it right now with instant 1-Click presets (Agricultural, Ecological, Disputed)."
+            "<div class='mt-2'><a href='/land-prediction/' class='btn btn-sm btn-primary py-0'><i class='bi bi-cpu'></i> Go to AI Land Prediction &rarr;</a></div>"
+        )
+        return JsonResponse({
+            'status': 'success',
+            'intent': 'land_prediction_info',
+            'response': response_text,
+            'quick_suggestions': [
+                "Open AI Land Prediction",
+                "How is the score calculated?",
+                "Inspect SY-104-2B (96%)"
             ]
         })
 
@@ -318,3 +348,228 @@ def ai_agent_chat_api(request):
             "Inspect SY-104-2B (96% Score)"
         ]
     })
+
+
+def land_prediction_view(request):
+    """
+    Dedicated view for AI Land Health & Safety Prediction.
+    Users upload a survey number and land/satellite image (or select instant presets).
+    The AI calculates the land health score (0-100%), safety determination,
+    vegetation canopy, built-up encroachment, and boundary demarcation.
+    """
+    current_prediction = None
+    anomalies = []
+    initial_data = {}
+
+    prefill_survey = request.GET.get('survey', '').strip()
+    if prefill_survey:
+        initial_data['survey_number'] = prefill_survey
+
+    if request.method == 'POST':
+        form = LandPredictionForm(request.POST, request.FILES)
+        if form.is_valid():
+            survey_no = form.cleaned_data['survey_number'].strip()
+            image_file = form.cleaned_data.get('image_file')
+            preset_sample = form.cleaned_data.get('preset_sample')
+            preset_image_data = form.cleaned_data.get('preset_image_data')
+
+            try:
+                # Determine image input
+                if preset_sample:
+                    image_input = AILandPredictionService.get_sample_preset_image(preset_sample)
+                elif preset_image_data and preset_image_data.startswith('data:image'):
+                    image_input = preset_image_data
+                elif image_file:
+                    image_input = image_file
+                else:
+                    image_input = AILandPredictionService.get_sample_preset_image('clean_agricultural')
+
+                pred_result = AILandPredictionService.predict_land(
+                    image_input=image_input,
+                    survey_number=survey_no,
+                    user=request.user if request.user.is_authenticated else None
+                )
+
+                # Save record in database
+                current_prediction = LandPrediction.objects.create(
+                    survey_number=pred_result['survey_number'],
+                    parcel=pred_result['parcel'],
+                    user=pred_result['user'],
+                    image_data=pred_result['image_data'],
+                    predicted_health_score=pred_result['predicted_health_score'],
+                    safety_status=pred_result['safety_status'],
+                    risk_category=pred_result['risk_category'],
+                    determination=pred_result['determination'],
+                    vegetation_ratio=pred_result['vegetation_ratio'],
+                    builtup_ratio=pred_result['builtup_ratio'],
+                    soil_water_ratio=pred_result['soil_water_ratio'],
+                    boundary_clarity=pred_result['boundary_clarity'],
+                    ai_analysis_summary=pred_result['ai_analysis_summary']
+                )
+                anomalies = pred_result['anomalies']
+
+                messages.success(
+                    request,
+                    f"AI Land Prediction successfully generated for {survey_no}! "
+                    f"Health Score: {current_prediction.predicted_health_score}% ({current_prediction.safety_status})."
+                )
+            except Exception as e:
+                messages.error(request, f"Error processing image prediction: {str(e)}")
+    else:
+        form = LandPredictionForm(initial=initial_data)
+
+    recent_predictions = LandPrediction.objects.select_related('parcel', 'user').all()[:6]
+
+    context = {
+        'form': form,
+        'current_prediction': current_prediction,
+        'anomalies': anomalies,
+        'recent_predictions': recent_predictions,
+        'registered_parcels': LandParcel.objects.all()[:12]
+    }
+    return render(request, 'validation/land_prediction.html', context)
+
+
+@csrf_exempt
+def api_predict_land(request):
+    """
+    JSON API endpoint for AJAX-based AI Land Prediction.
+    Accepts multipart/form-data or JSON with survey_number and image.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST method required.'}, status=405)
+
+    try:
+        survey_number = request.POST.get('survey_number', '').strip()
+        preset_sample = request.POST.get('preset_sample', '').strip()
+        preset_image_data = request.POST.get('preset_image_data', '').strip()
+        image_file = request.FILES.get('image_file')
+
+        if not survey_number and request.body:
+            try:
+                body_data = json.loads(request.body.decode('utf-8'))
+                survey_number = body_data.get('survey_number', '').strip()
+                preset_sample = body_data.get('preset_sample', '').strip()
+                preset_image_data = body_data.get('preset_image_data', '').strip()
+            except Exception:
+                pass
+
+        if not survey_number:
+            survey_number = "SY-UNREG-01"
+
+        if preset_sample:
+            image_input = AILandPredictionService.get_sample_preset_image(preset_sample)
+        elif preset_image_data and preset_image_data.startswith('data:image'):
+            image_input = preset_image_data
+        elif image_file:
+            image_input = image_file
+        else:
+            image_input = AILandPredictionService.get_sample_preset_image('clean_agricultural')
+
+        pred_result = AILandPredictionService.predict_land(
+            image_input=image_input,
+            survey_number=survey_number,
+            user=request.user if request.user.is_authenticated else None
+        )
+
+        prediction = LandPrediction.objects.create(
+            survey_number=pred_result['survey_number'],
+            parcel=pred_result['parcel'],
+            user=pred_result['user'],
+            image_data=pred_result['image_data'],
+            predicted_health_score=pred_result['predicted_health_score'],
+            safety_status=pred_result['safety_status'],
+            risk_category=pred_result['risk_category'],
+            determination=pred_result['determination'],
+            vegetation_ratio=pred_result['vegetation_ratio'],
+            builtup_ratio=pred_result['builtup_ratio'],
+            soil_water_ratio=pred_result['soil_water_ratio'],
+            boundary_clarity=pred_result['boundary_clarity'],
+            ai_analysis_summary=pred_result['ai_analysis_summary']
+        )
+
+        return JsonResponse({
+            'status': 'success',
+            'prediction_id': prediction.id,
+            'survey_number': prediction.survey_number,
+            'predicted_health_score': prediction.predicted_health_score,
+            'safety_status': prediction.safety_status,
+            'risk_category': prediction.risk_category,
+            'determination': prediction.determination,
+            'vegetation_ratio': prediction.vegetation_ratio,
+            'builtup_ratio': prediction.builtup_ratio,
+            'soil_water_ratio': prediction.soil_water_ratio,
+            'boundary_clarity': prediction.boundary_clarity,
+            'anomalies': pred_result['anomalies'],
+            'ai_analysis_summary': prediction.ai_analysis_summary,
+            'image_data': prediction.image_data,
+            'has_linked_parcel': bool(prediction.parcel)
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+@login_required
+def sync_prediction_to_audit_view(request, prediction_id):
+    """
+    Syncs an AI Land Prediction directly into the official Annual Cadastral Audits log.
+    Links the AI calculated health score, encroachment status, and risk determination
+    to the statutory cadastral audit table.
+    """
+    prediction = get_object_or_404(LandPrediction, id=prediction_id)
+
+    # If prediction is already linked to a parcel, use that.
+    # Otherwise attempt to find parcel by survey_number or use first available.
+    parcel = prediction.parcel
+    if not parcel:
+        parcel = LandParcel.objects.filter(survey_number__iexact=prediction.survey_number).first()
+        if not parcel:
+            # Fallback to first parcel for demonstration
+            parcel = LandParcel.objects.first()
+
+    if not parcel:
+        messages.error(request, "Cannot sync to Annual Audit: No registered Land Parcel exists in the database.")
+        return redirect('land_prediction')
+
+    # Convert safety status to risk level
+    if prediction.safety_status == 'SAFE':
+        risk_level = 'LOW'
+    elif prediction.safety_status == 'MODERATE':
+        risk_level = 'MEDIUM'
+    else:
+        risk_level = 'HIGH'
+
+    current_year = timezone.now().year
+    code = f"PRED-{current_year}-{prediction.id:04d}"
+
+    # Check if audit already exists for this prediction code
+    audit, created = ValidationAudit.objects.get_or_create(
+        inspection_code=code,
+        defaults={
+            'parcel': parcel,
+            'inspector_name': request.user.get_full_name() or request.user.username or "AI Satellite Auditor",
+            'inspection_date': timezone.now().date(),
+            'fiscal_year': current_year,
+            'compliance_score': prediction.predicted_health_score,
+            'risk_level': risk_level,
+            'title_clarity_passed': (risk_level != 'HIGH'),
+            'boundary_verification_passed': ('Demarcated' in prediction.boundary_clarity or risk_level == 'LOW'),
+            'zoning_compliance_passed': (prediction.builtup_ratio < 40),
+            'encroachment_detected': (prediction.builtup_ratio > 30 or risk_level == 'HIGH'),
+            'ai_anomaly_notes': f"[AI Satellite Prediction #{prediction.id}] {prediction.ai_analysis_summary}",
+            'final_determination': prediction.determination
+        }
+    )
+
+    prediction.audit_logged = True
+    if not prediction.parcel:
+        prediction.parcel = parcel
+    prediction.save()
+
+    messages.success(
+        request,
+        f"✅ AI Land Prediction successfully synchronized into the {current_year} Annual Cadastral Audit Log! "
+        f"Official Audit Code: {audit.inspection_code}."
+    )
+    return redirect('audit_fiscal_year', year=current_year)
+

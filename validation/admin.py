@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ValidationAudit
+from .models import ValidationAudit, LandPrediction
 
 
 @admin.register(ValidationAudit)
@@ -25,3 +25,16 @@ class ValidationAuditAdmin(admin.ModelAdmin):
             'fields': ('ai_anomaly_notes', 'created_at')
         }),
     )
+
+
+@admin.register(LandPrediction)
+class LandPredictionAdmin(admin.ModelAdmin):
+    list_display = (
+        'survey_number', 'safety_status', 'predicted_health_score',
+        'determination', 'vegetation_ratio', 'builtup_ratio',
+        'audit_logged', 'created_at'
+    )
+    list_filter = ('safety_status', 'determination', 'audit_logged', 'created_at')
+    search_fields = ('survey_number', 'ai_analysis_summary')
+    readonly_fields = ('created_at',)
+

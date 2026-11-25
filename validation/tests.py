@@ -144,3 +144,74 @@ class ValidationAppTests(TestCase):
         self.assertEqual(res_parcel.json()['status'], 'success')
         self.assertEqual(res_parcel.json()['intent'], 'parcel_diagnostic')
         self.assertIn(self.parcel.survey_number, res_parcel.json()['response'])
+
+    def test_06_land_prediction_view_get_and_post(self):
+        """Test land prediction GET renders page and POST computes health prediction."""
+        url = reverse('land_prediction')
+        get_res = self.client.get(url)
+        self.assertEqual(get_res.status_code, 200)
+        self.assertContains(get_res, 'AI Satellite & Aerial Land Health Prediction')
+
+        # POST with clean agricultural preset
+        post_data = {
+            'survey_number': self.parcel.survey_number,
+            'preset_sample': 'clean_agricultural'
+        }
+        post_res = self.client.post(url, post_data)
+        self.assertEqual(post_res.status_code, 200)
+        self.assertContains(post_res, 'AI Land Health Diagnostic Result')
+        self.assertContains(post_res, 'Land Health Score')
+
+    def test_07_api_predict_land(self):
+        """Test API endpoint returns JSON with health score, safety status, and ratios."""
+        url = reverse('api_predict_land')
+        post_data = {
+            'survey_number': 'SY-TEST-PRED-99',
+            'preset_sample': 'disputed_encroached'
+        }
+        res = self.client.post(url, post_data)
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertEqual(data['safety_status'], 'UNSAFE')
+        self.assertIn('predicted_health_score', data)
+        self.assertIn('vegetation_ratio', data)
+        self.assertIn('builtup_ratio', data)
+
+    def test_08_sync_prediction_to_annual_audit(self):
+        """Test syncing AI Land Prediction into the statutory Annual Cadastral Audit."""
+        from validation.models import LandPrediction
+        pred = LandPrediction.objects.create(
+            survey_number=self.parcel.survey_number,
+            parcel=self.parcel,
+            user=self.user,
+            image_data="data:image/jpeg;base64,fakeimage",
+            predicted_health_score=92,
+            safety_status='SAFE',
+            risk_category='Low Risk - Clean Land',
+            determination='APPROVED',
+            vegetation_ratio=55.0,
+            builtup_ratio=10.0,
+            soil_water_ratio=35.0,
+            boundary_clarity='High Clarity - Demarcated',
+            ai_analysis_summary='Clean healthy land test.'
+        )
+
+        sync_url = reverse('sync_prediction_to_audit', kwargs={'prediction_id': pred.id})
+        res = self.client.get(sync_url)
+        self.assertEqual(res.status_code, 302)
+
+        pred.refresh_from_db()
+        self.assertTrue(pred.audit_logged)
+        self.assertTrue(ValidationAudit.objects.filter(inspection_code__startswith='PRED-').exists())
+
+    def test_09_chat_api_scoring_explanation_and_prediction(self):
+        """Test chatbot responds to 'how ai score calculated' and land prediction queries."""
+        url = reverse('ai_agent_chat_api')
+        res = self.client.get(url, {'query': 'how ai score calculated'})
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['status'], 'success')
+        self.assertIn('Cadastral AI Risk Assessment', data['response'])
+        self.assertIn('/land-prediction/', data['response'])
+

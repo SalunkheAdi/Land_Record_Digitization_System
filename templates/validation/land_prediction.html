@@ -1,0 +1,574 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Land Health & Safety Prediction | GeoCadastre{% endblock %}
+
+{% block extra_css %}
+<style>
+    .prediction-dropzone {
+        border: 2px dashed var(--earth-border, #cbd5e1);
+        border-radius: 12px;
+        padding: 24px;
+        text-align: center;
+        background-color: var(--earth-card-muted, #f8fafc);
+        cursor: pointer;
+        transition: all 0.25s ease;
+        position: relative;
+    }
+    .prediction-dropzone:hover, .prediction-dropzone.dragover {
+        border-color: var(--earth-forest, #059669);
+        background-color: rgba(5, 150, 105, 0.05);
+    }
+    .image-preview-box {
+        max-height: 240px;
+        width: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid var(--earth-border, #cbd5e1);
+    }
+    .score-circle {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        margin: 0 auto;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+    }
+    .score-circle-safe {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        color: #ffffff;
+    }
+    .score-circle-moderate {
+        background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+        color: #ffffff;
+    }
+    .score-circle-unsafe {
+        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        color: #ffffff;
+    }
+    .preset-card-btn {
+        cursor: pointer;
+        border: 1px solid var(--earth-border, #cbd5e1);
+        border-radius: 10px;
+        padding: 10px;
+        background: var(--earth-card-bg, #ffffff);
+        transition: all 0.2s ease;
+        text-align: left;
+    }
+    .preset-card-btn:hover {
+        border-color: var(--earth-forest, #059669);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+    .survey-quick-chip {
+        cursor: pointer;
+        font-size: 0.78rem;
+        padding: 3px 8px;
+        border-radius: 6px;
+        background-color: var(--earth-card-muted, #f1f5f9);
+        border: 1px solid var(--earth-border, #e2e8f0);
+        color: var(--earth-text-main, #334155);
+        display: inline-block;
+        margin-right: 4px;
+        margin-bottom: 4px;
+        transition: all 0.15s ease;
+    }
+    .survey-quick-chip:hover {
+        background-color: #059669;
+        color: #ffffff;
+        border-color: #059669;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'validation_list' %}">Cadastral Audits</a></li>
+            <li class="breadcrumb-item active" aria-current="page">AI Land Prediction</li>
+        </ol>
+    </nav>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h2 class="h3 fw-bold text-dark mb-1">
+                <i class="bi bi-cpu text-success me-2"></i>AI Satellite & Aerial Land Health Prediction
+            </h2>
+            <p class="text-muted mb-0">
+                Upload survey numbers and aerial/satellite land imagery to compute land health scores, detect encroachment, and classify statutory safety.
+            </p>
+        </div>
+        <div>
+            <a href="{% url 'audit_fiscal_year' year=2024 %}" class="btn btn-outline-secondary">
+                <i class="bi bi-journal-text me-1"></i> Annual Audit Log
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Prediction Form & Sample Presets -->
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-cloud-arrow-up me-2 text-primary"></i>Upload Land Image & Survey Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data" id="landPredictionForm">
+                    {% csrf_token %}
+
+                    <!-- Survey Number Field -->
+                    <div class="mb-3">
+                        <label for="id_survey_number" class="form-label fw-bold">
+                            Cadastral Survey Number <span class="text-danger">*</span>
+                        </label>
+                        {{ form.survey_number }}
+                        <div class="form-text mt-1">
+                            Quick-fill registered parcels:
+                            <span class="survey-quick-chip" onclick="fillSurvey('SY-104-2B')">SY-104-2B (Clean)</span>
+                            <span class="survey-quick-chip" onclick="fillSurvey('SY-401-ECO')">SY-401-ECO (Eco)</span>
+                            <span class="survey-quick-chip" onclick="fillSurvey('SY-99-DISP')">SY-99-DISP (Dispute)</span>
+                            <span class="survey-quick-chip" onclick="fillSurvey('SY-NEW-2024')">SY-NEW-2024</span>
+                        </div>
+                    </div>
+
+                    <!-- Image Upload Dropzone -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">
+                            Land Image (Aerial / Satellite / Ground Photo)
+                        </label>
+                        <div class="prediction-dropzone" id="dropZone" onclick="document.getElementById('id_image_file').click()">
+                            <div id="dropZonePrompt">
+                                <i class="bi bi-cloud-upload display-5 text-muted mb-2 d-block"></i>
+                                <div class="fw-bold text-dark">Click to browse or drag & drop land image here</div>
+                                <div class="small text-muted">Supports JPG, PNG, WebP up to 10MB</div>
+                            </div>
+                            <img id="imagePreview" class="image-preview-box d-none mt-2" alt="Selected land preview">
+                        </div>
+                        <input type="file" name="image_file" id="id_image_file" class="d-none" accept="image/*" onchange="handleFileSelect(event)">
+                        <input type="hidden" name="preset_image_data" id="id_preset_image_data">
+                    </div>
+
+                    <!-- 1-Click AI Test Presets for Presentation -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold d-flex justify-content-between">
+                            <span>Instant 1-Click Evaluation Presets</span>
+                            <span class="badge bg-secondary">For Testing / Presentation</span>
+                        </label>
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <div class="preset-card-btn" onclick="selectPreset('clean_agricultural', 'SY-104-2B')">
+                                    <div class="d-flex align-items-center gap-1 mb-1">
+                                        <span class="badge bg-success" style="font-size: 0.68rem;">SAFE (95%)</span>
+                                    </div>
+                                    <div class="fw-bold small text-dark">🌾 Agricultural</div>
+                                    <div class="text-muted" style="font-size: 0.72rem;">Clean canals & lush crop canopy</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="preset-card-btn" onclick="selectPreset('ecological_wetland', 'SY-401-ECO')">
+                                    <div class="d-flex align-items-center gap-1 mb-1">
+                                        <span class="badge bg-warning text-dark" style="font-size: 0.68rem;">MODERATE (68%)</span>
+                                    </div>
+                                    <div class="fw-bold small text-dark">🌊 Eco Wetland</div>
+                                    <div class="text-muted" style="font-size: 0.72rem;">Water reservoir & natural buffer</div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="preset-card-btn" onclick="selectPreset('disputed_encroached', 'SY-99-DISP')">
+                                    <div class="d-flex align-items-center gap-1 mb-1">
+                                        <span class="badge bg-danger" style="font-size: 0.68rem;">UNSAFE (35%)</span>
+                                    </div>
+                                    <div class="fw-bold small text-dark">⚠️ Encroached</div>
+                                    <div class="text-muted" style="font-size: 0.72rem;">Unauthorized concrete & dispute</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" id="submitBtn">
+                        <i class="bi bi-cpu-fill me-1"></i> Analyze & Predict Land Health
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Prediction Assessment & Health Meter -->
+    <div class="col-lg-6">
+        {% if current_prediction %}
+        <div class="card shadow-sm border-0 border-stat-score h-100">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-patch-check-fill text-success me-2"></i>AI Land Health Diagnostic Result
+                </h5>
+                <span class="badge {% if current_prediction.safety_status == 'SAFE' %}bg-success{% elif current_prediction.safety_status == 'MODERATE' %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6 px-3 py-1">
+                    {{ current_prediction.safety_status }}
+                </span>
+            </div>
+            <div class="card-body">
+                <!-- Health Score Display & Land Thumbnail -->
+                <div class="row align-items-center g-3 mb-4 p-3 rounded" style="background-color: var(--earth-card-muted, #f8fafc);">
+                    <div class="col-sm-5 text-center">
+                        <div class="score-circle {% if current_prediction.safety_status == 'SAFE' %}score-circle-safe{% elif current_prediction.safety_status == 'MODERATE' %}score-circle-moderate{% else %}score-circle-unsafe{% endif %}">
+                            <span class="display-5 fw-bold mb-0" style="line-height: 1;">{{ current_prediction.predicted_health_score }}</span>
+                            <span class="small opacity-75" style="font-size: 0.7rem;">OUT OF 100</span>
+                        </div>
+                        <div class="mt-2 fw-bold text-dark" style="font-size: 0.85rem;">Land Health Score</div>
+                        <div class="badge bg-light text-dark border">{{ current_prediction.determination }}</div>
+                    </div>
+                    <div class="col-sm-7">
+                        {% if current_prediction.image_data %}
+                        <div class="position-relative">
+                            <img src="{{ current_prediction.image_data }}" class="w-100 rounded border shadow-sm" style="max-height: 140px; object-fit: cover;" alt="Analyzed land imagery">
+                            <div class="position-absolute bottom-0 start-0 m-1 px-2 py-0 bg-dark text-white rounded small opacity-75" style="font-size: 0.68rem;">
+                                Survey {{ current_prediction.survey_number }}
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="mt-2 small text-muted">
+                            <strong>Classification:</strong> {{ current_prediction.risk_category }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Land Cover & Boundary Metrics -->
+                <h6 class="fw-bold text-dark mb-3">
+                    <i class="bi bi-bar-chart-fill text-primary me-1"></i>Computer Vision Spectrum & Demarcation
+                </h6>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small fw-bold mb-1">
+                        <span><i class="bi bi-tree-fill text-success me-1"></i>Vegetation Canopy Density</span>
+                        <span class="text-success">{{ current_prediction.vegetation_ratio }}%</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ current_prediction.vegetation_ratio }}%"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small fw-bold mb-1">
+                        <span><i class="bi bi-buildings-fill text-secondary me-1"></i>Built-up / Concrete Encroachment</span>
+                        <span class="{% if current_prediction.builtup_ratio > 30 %}text-danger{% else %}text-muted{% endif %}">{{ current_prediction.builtup_ratio }}%</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar {% if current_prediction.builtup_ratio > 30 %}bg-danger{% else %}bg-secondary{% endif %}" role="progressbar" style="width: {{ current_prediction.builtup_ratio }}%"></div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small fw-bold mb-1">
+                        <span><i class="bi bi-water text-info me-1"></i>Soil & Hydrological Ratio</span>
+                        <span class="text-info">{{ current_prediction.soil_water_ratio }}%</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ current_prediction.soil_water_ratio }}%"></div>
+                    </div>
+                </div>
+
+                <div class="p-2 rounded mb-3 border d-flex justify-content-between align-items-center" style="background-color: #f1f5f9;">
+                    <span class="small fw-bold text-dark">
+                        <i class="bi bi-bounding-box-circles me-1 text-primary"></i>Boundary Demarcation:
+                    </span>
+                    <span class="badge bg-primary">{{ current_prediction.boundary_clarity }}</span>
+                </div>
+
+                <!-- Anomalies & Diagnostics -->
+                {% if anomalies %}
+                <div class="alert alert-warning py-2 mb-3">
+                    <strong class="small d-block mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i>AI Cadastral Findings:</strong>
+                    <ul class="small mb-0 ps-3">
+                        {% for a in anomalies %}
+                        <li>{{ a }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% else %}
+                <div class="alert alert-success py-2 mb-3">
+                    <i class="bi bi-check-circle-fill me-1"></i> <strong>Clean Record:</strong> Zero boundary disputes or structural encroachments detected.
+                </div>
+                {% endif %}
+
+                <!-- Sync to Annual Audit Button -->
+                <div class="mt-4 pt-3 border-top">
+                    {% if current_prediction.audit_logged %}
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span class="text-success small fw-bold">
+                            <i class="bi bi-check-all fs-5 me-1"></i> Synchronized with Annual Cadastral Audits Log
+                        </span>
+                        <a href="{% url 'audit_fiscal_year' year=2024 %}" class="btn btn-sm btn-outline-success">
+                            View in Annual Log &rarr;
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div>
+                            <div class="small fw-bold text-dark">Log into Official Annual Records:</div>
+                            <div class="text-muted" style="font-size: 0.75rem;">Embeds this prediction score into the annual cadastral audit ledger.</div>
+                        </div>
+                        <a href="{% url 'sync_prediction_to_audit' prediction_id=current_prediction.id %}" class="btn btn-success fw-bold">
+                            <i class="bi bi-journal-plus me-1"></i> Sync to Annual Audit Log
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Placeholder / Explainer when no prediction executed yet -->
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="fw-bold mb-0 text-dark">
+                    <i class="bi bi-info-circle me-2 text-info"></i>How AI Land Prediction Works
+                </h5>
+            </div>
+            <div class="card-body d-flex flex-column justify-content-between">
+                <div>
+                    <div class="text-center py-4">
+                        <i class="bi bi-globe-americas display-3 text-success opacity-75"></i>
+                        <h5 class="fw-bold mt-3 text-dark">Ready for Cadastral Image Analysis</h5>
+                        <p class="text-muted small mx-auto" style="max-width: 380px;">
+                            Enter a Survey Number and upload land imagery, or click any of the <strong>1-Click Presets</strong> on the left to run an instant demonstration.
+                        </p>
+                    </div>
+
+                    <div class="card border mb-3">
+                        <div class="card-header bg-light py-2 fw-bold small text-dark">
+                            AI Cadastral Heuristic Pillars Evaluated:
+                        </div>
+                        <ul class="list-group list-group-flush small">
+                            <li class="list-group-item d-flex align-items-center gap-2">
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                                <span><strong>Vegetation Canopy (0-100%):</strong> Detects bio-fertility, crops, and ecological cover.</span>
+                            </li>
+                            <li class="list-group-item d-flex align-items-center gap-2">
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                                <span><strong>Encroachment Check:</strong> Flags unauthorized concrete structures or roads on agricultural parcels.</span>
+                            </li>
+                            <li class="list-group-item d-flex align-items-center gap-2">
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                                <span><strong>Boundary Edge Sharpness:</strong> Evaluates geometric cadastral demarcation clarity.</span>
+                            </li>
+                            <li class="list-group-item d-flex align-items-center gap-2">
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                                <span><strong>Statutory Registry Cross-Check:</strong> Detects tribunal stay orders and title disputes.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded border text-muted small" style="background-color: #f8fafc;">
+                    <i class="bi bi-lightbulb-fill text-warning me-1"></i>
+                    <strong>Examiner Tip:</strong> Try testing with <code>SY-104-2B</code> (clean agricultural title) or <code>SY-99-DISP</code> (active court dispute).
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Bottom Section: Recent AI Predictions Registry Table -->
+{% if recent_predictions %}
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0 text-dark">
+            <i class="bi bi-clock-history me-2 text-primary"></i>Recent AI Land Predictions
+        </h5>
+        <span class="badge bg-secondary">{{ recent_predictions.count }} Recorded</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light small text-uppercase">
+                <tr>
+                    <th scope="col">Survey Number</th>
+                    <th scope="col">Imagery</th>
+                    <th scope="col">Health Score</th>
+                    <th scope="col">Safety Status</th>
+                    <th scope="col">Land Cover (Veg / Built / Soil)</th>
+                    <th scope="col">Determination</th>
+                    <th scope="col">Annual Audit</th>
+                    <th scope="col">Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in recent_predictions %}
+                <tr>
+                    <td class="fw-bold text-dark">
+                        <a href="{% url 'land_prediction' %}?survey={{ p.survey_number }}" class="text-decoration-none">
+                            {{ p.survey_number }}
+                        </a>
+                        {% if p.parcel %}
+                        <div class="small text-muted">{{ p.parcel.district }}</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if p.image_data %}
+                        <img src="{{ p.image_data }}" style="width: 54px; height: 38px; object-fit: cover; border-radius: 4px;" alt="thumb">
+                        {% else %}
+                        <span class="text-muted small">No image</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="fw-bold fs-6 {% if p.predicted_health_score >= 80 %}text-success{% elif p.predicted_health_score >= 50 %}text-warning{% else %}text-danger{% endif %}">
+                            {{ p.predicted_health_score }}%
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge {% if p.safety_status == 'SAFE' %}bg-success{% elif p.safety_status == 'MODERATE' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                            {{ p.safety_status }}
+                        </span>
+                    </td>
+                    <td class="small">
+                        <span class="text-success">{{ p.vegetation_ratio }}% V</span> | 
+                        <span class="text-secondary">{{ p.builtup_ratio }}% B</span> | 
+                        <span class="text-info">{{ p.soil_water_ratio }}% S</span>
+                    </td>
+                    <td>
+                        <span class="badge bg-light text-dark border">{{ p.determination }}</span>
+                    </td>
+                    <td>
+                        {% if p.audit_logged %}
+                        <span class="badge bg-success-subtle text-success border border-success"><i class="bi bi-check-circle"></i> Logged</span>
+                        {% else %}
+                        <a href="{% url 'sync_prediction_to_audit' prediction_id=p.id %}" class="btn btn-sm btn-outline-primary py-0" style="font-size: 0.72rem;">
+                            Sync Audit
+                        </a>
+                        {% endif %}
+                    </td>
+                    <td class="small text-muted">
+                        {{ p.created_at|date:"d M Y, H:i" }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function fillSurvey(no) {
+        document.getElementById('id_survey_number').value = no;
+    }
+
+    function handleFileSelect(e) {
+        var file = e.target.files[0];
+        if (!file) return;
+
+        var reader = new FileReader();
+        reader.onload = function(evt) {
+            var imgPreview = document.getElementById('imagePreview');
+            var prompt = document.getElementById('dropZonePrompt');
+            imgPreview.src = evt.target.result;
+            imgPreview.classList.remove('d-none');
+            prompt.classList.add('d-none');
+            // Clear preset hidden data since user uploaded custom image
+            document.getElementById('id_preset_image_data').value = '';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function selectPreset(presetType, surveyNo) {
+        fillSurvey(surveyNo);
+        // Synthesize simulated aerial image directly via client canvas for immediate preview
+        var canvas = document.createElement('canvas');
+        canvas.width = 480;
+        canvas.height = 360;
+        var ctx = canvas.getContext('2d');
+
+        if (presetType === 'clean_agricultural') {
+            ctx.fillStyle = '#2e7d32';
+            ctx.fillRect(0, 0, 480, 360);
+            ctx.fillStyle = '#388e3c';
+            for (var y = 20; y < 340; y += 25) {
+                ctx.fillRect(30, y, 420, 8);
+            }
+            ctx.fillStyle = '#b4963c';
+            ctx.fillRect(60, 60, 140, 100);
+            ctx.fillStyle = '#2196f3';
+            ctx.fillRect(235, 20, 12, 320);
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(30, 20, 420, 320);
+        } else if (presetType === 'ecological_wetland') {
+            ctx.fillStyle = '#1e502d';
+            ctx.fillRect(0, 0, 480, 360);
+            ctx.fillStyle = '#1565c0';
+            ctx.beginPath();
+            ctx.ellipse(240, 180, 160, 110, 0, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.fillStyle = '#2e7d32';
+            for (var x = 30; x < 450; x += 40) {
+                ctx.beginPath();
+                ctx.arc(x, 300, 25, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+            ctx.strokeStyle = '#81c784';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(40, 30, 400, 300);
+        } else {
+            ctx.fillStyle = '#a0825f';
+            ctx.fillRect(0, 0, 480, 360);
+            ctx.fillStyle = '#787d82';
+            ctx.fillRect(100, 80, 90, 80);
+            ctx.fillRect(220, 140, 100, 100);
+            ctx.fillRect(330, 90, 80, 80);
+            ctx.strokeStyle = '#5a5a5a';
+            ctx.lineWidth = 16;
+            ctx.beginPath();
+            ctx.moveTo(40, 320);
+            ctx.lineTo(440, 60);
+            ctx.stroke();
+            ctx.strokeStyle = '#dc3545';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(30, 30, 420, 300);
+        }
+
+        var dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+        var imgPreview = document.getElementById('imagePreview');
+        var prompt = document.getElementById('dropZonePrompt');
+        imgPreview.src = dataUrl;
+        imgPreview.classList.remove('d-none');
+        prompt.classList.add('d-none');
+
+        document.getElementById('id_preset_image_data').value = dataUrl;
+        // Also update preset select if present
+        var selectElem = document.getElementById('id_preset_sample');
+        if (selectElem) selectElem.value = presetType;
+    }
+
+    // Drag and drop event listeners
+    var dropZone = document.getElementById('dropZone');
+    ['dragenter', 'dragover'].forEach(function(eventName) {
+        dropZone.addEventListener(eventName, function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('dragover');
+        });
+    });
+    ['dragleave', 'drop'].forEach(function(eventName) {
+        dropZone.addEventListener(eventName, function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('dragover');
+        });
+    });
+    dropZone.addEventListener('drop', function(e) {
+        var dt = e.dataTransfer;
+        var files = dt.files;
+        if (files.length) {
+            document.getElementById('id_image_file').files = files;
+            handleFileSelect({ target: { files: files } });
+        }
+    });
+</script>
+{% endblock %}
